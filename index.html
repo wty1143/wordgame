@@ -8,7 +8,7 @@
     
     <!-- Bootstrap -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    
+    <link rel="stylesheet" href="style.css">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -62,7 +62,8 @@
     <div>
         <center>
             <div>
-                <img src="img/{{word}}.jpg">
+                <img ng-if="imageExists" src="img/{{word}}.jpg">
+                <img ng-if="imageExists" src="img/{{word}}.png">
             </div>
             
             <div>
@@ -75,6 +76,14 @@
                 <h1 style="font-size: 72px; color: #ff0000">X</h1>
             </div>
         </center>
+    </div>
+
+    <div id="game-container">
+        <p id="clue"></p>
+        <button id="choice1"></button>
+        <button id="choice2"></button>
+        <button id="choice3"></button>
+        <button id="choice4"></button>
     </div>
     
     
