@@ -49,7 +49,7 @@ function GameCntl($scope, $timeout) {
         const choices = [word[index].toUpperCase()];
         let usedLetters = choices;
         console.log("Using letters" + word[index].toUpperCase())
-        while (choices.length < 4) {
+        while (choices.length < 5) {
             console.log("choices.length" + choices.length)
             const randomLetter = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
             if (!usedLetters.includes(randomLetter)) {
@@ -95,6 +95,7 @@ function GameCntl($scope, $timeout) {
             $("#choice2").text(choices[1]);
             $("#choice3").text(choices[2]);
             $("#choice4").text(choices[3]);
+            $("#choice5").text(choices[4]);
         };
     
     $scope.resetclue = function() {
@@ -168,6 +169,11 @@ function GameCntl($scope, $timeout) {
     $("#choice4").click(function () {
         console.log("choice4 clicked");
         checkAnswer($scope.choices[3]);
+    });
+
+    $("#choice5").click(function () {
+        console.log("choice5 clicked");
+        checkAnswer($scope.choices[4]);
     });
 
     $scope.correct = function() {
