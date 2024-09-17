@@ -1,50 +1,3 @@
-// ls | perl -pi -e 's/^(.*)\.jpg/"$1",/g'
-
-words = [
-    "backpack",
-    "book",
-    "chair",
-    "compare",
-    "day",
-    "desk",
-    "empty",
-    "every",
-    "exclaimed",
-    "feathers",
-    "fly",
-    "get",
-    "have",
-    "hear",
-    "hen",
-    "leaves",
-    "leg",
-    "let",
-    "look",
-    "made",
-    "measure",
-    "nest",
-    "notebook",
-    "observe",
-    "out",
-    "pencil case",
-    "pencil",
-    "red",
-    "see",
-    "smell",
-    "soft",
-    "soon",
-    "sort",
-    "surprise",
-    "taste",
-    "they",
-    "touch",
-    "twigs",
-    "warm",
-    "web",
-    "wet",
-    "write",
-    "yet",    
-];
 
 function speak(str) {
     
@@ -221,8 +174,10 @@ function GameCntl($scope, $timeout) {
         
         $scope.number_right += 1;
         
-        $scope.right_indicator = true;
-        $scope.wrong_indicator = false;
+        $scope.$apply(function () {
+            $scope.right_indicator = true;
+            $scope.wrong_indicator = false;
+        });
         
         $scope.clue = $scope.word.substr(0, $scope.index) + $scope.letter
         + $scope.word.substr($scope.index + 1);
@@ -237,8 +192,13 @@ function GameCntl($scope, $timeout) {
     
     $scope.incorrect = function(c) {
         console.log("incorrect input: " + c);
-        $scope.right_indicator = false;
-        $scope.wrong_indicator = true;
+
+        $scope.$apply(function () {
+            $scope.right_indicator = false;
+            $scope.wrong_indicator = true;
+        });
+        // $scope.right_indicator = false;
+        // $scope.wrong_indicator = true;
         
         $scope.clue = $scope.word.substr(0, $scope.index) + c.toLowerCase()
         + $scope.word.substr($scope.index + 1);

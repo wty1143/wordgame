@@ -1,6 +1,7 @@
 import argparse
 from PIL import Image
 from pathlib import Path
+import os
 
 description = """********************************************************
 *                                                      *
@@ -145,7 +146,7 @@ rotate90 = args.rotate90
 rotate180 = args.rotate180
 rotate270 = args.rotate270
 
-
+print(new_width,new_heigh)
 
 if all([input_file,out_format]):
     if any([str(input_file).split(".")[-1].lower() not in supported_formats,out_format.lower() not in supported_formats]):
@@ -156,12 +157,11 @@ if all([input_file,out_format]):
 if all([not output_file,not out_format,not new_width,not new_heigh]):
     print("You must point at least one output spec.")
 
-if not all([new_width,new_heigh]):
+if not any([new_width,new_heigh]):
     "File wont be resized"
     out_image = Image.open(input_file)
     out_image = all_flag_funcs(out_image)
     if output_file:
-        out_image = out_image.convert('RGB')
         out_image.save(output_file)
     if out_format:
         extension = str(input_file).split(".")[-1]
@@ -194,6 +194,7 @@ if any([new_heigh,new_width]):
         else:
             out_image.save(input_file)
     elif new_width:
+        print(f'Reading {input_file}')
         x, y = Image.open(input_file).size
         y = round((new_width/x)*y)
         out_image = Image.open(input_file).resize([new_width,y])
@@ -201,8 +202,13 @@ if any([new_heigh,new_width]):
         if output_file:
             out_image.save(output_file)
         elif out_format:
-            out_name = str(input_file).split(".")[:-1] + "." + out_format
+            if args.out_format == 'jpg':
+                out_image = out_image.convert('RGB')
+            output_file = input_file.replace('_1', '')
+            out_name = str(output_file).split(".")[0] + "." + out_format
             out_image.save(out_name)
+            if '_1' in input_file and os.path.exists(input_file):
+                os.remove(input_file)
         else:
             out_image.save(input_file)
 
