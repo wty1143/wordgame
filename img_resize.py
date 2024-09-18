@@ -117,6 +117,9 @@ input_file = args.input_file
 if not input_file:
     print("Input file is required.")
     exit()
+if '_' not in input_file:
+    # print(f'Skip {input_file}')
+    exit()
 input_file_path = Path(input_file)
 if not input_file_path.is_file():
     print("Input file not found.")
@@ -196,8 +199,13 @@ if any([new_heigh,new_width]):
     elif new_width:
         print(f'Reading {input_file}')
         x, y = Image.open(input_file).size
-        y = round((new_width/x)*y)
-        out_image = Image.open(input_file).resize([new_width,y])
+        new_height = round((new_width/x)*y)
+        while new_height >= 400:
+            new_width -= 1
+            new_height = round((new_width/x)*y)
+            # print(f'Shrink new_height to {new_height}')
+            
+        out_image = Image.open(input_file).resize([new_width,new_height])
         out_image = all_flag_funcs(out_image)
         if output_file:
             out_image.save(output_file)
