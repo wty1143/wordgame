@@ -2,7 +2,7 @@
 function speak(str) {
     
     var msg = new SpeechSynthesisUtterance(str);
-    
+    msg.rate = 0.75;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(msg);
 }
@@ -19,30 +19,6 @@ function GameCntl($scope, $timeout) {
     $scope.number_right = 0;
     $scope.timeout = 0;
     $scope.mode = "any";
-
-    $scope.checkImageExists = function(word) {
-        var img = new Image();
-        img.src = 'img/' + word + '.jpg';
-        img.onload = function() {
-            // Image exists, display it
-            $scope.imageExists = true;
-            $scope.$apply();
-        };
-        img.onerror = function() {
-        // Image does not exist, try .png
-          img.src = 'img/' + word + '.png';
-          img.onload = function() {
-            // Image exists, display it
-            $scope.imageExists = true;
-            $scope.$apply();
-          };
-          img.onerror = function() {
-            // Image does not exist, handle error
-            $scope.imageExists = false;
-            $scope.$apply();
-          };
-        };
-      };
 
     // Function to pick random letters for choices
     function pickRandomChoices(word, index) {
@@ -74,14 +50,19 @@ function GameCntl($scope, $timeout) {
         
         // Pick a random word
         $scope.word = words[Math.floor(Math.random()*words.length)];
-        
-        $scope.checkImageExists($scope.word);
 
         // Select a letter
         if($scope.mode == "any") {
             $scope.index = Math.floor(Math.random()*$scope.word.length);
-        } else {
-            $scope.index = 0;
+            // Avoid picking up whitespace
+            while ($scope.word[$scope.index] == ' '){
+                $scope.index = Math.floor(Math.random()*$scope.word.length);
+            }
+        } else if ($scope.mode == "double") {
+            $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+            while ($scope.word[$scope.index] == ' ' || $scope.word[$scope.index+1] == ' '){
+                $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+            }
         }
         
         $scope.letter = $scope.word[$scope.index];
@@ -149,6 +130,15 @@ function GameCntl($scope, $timeout) {
             $scope.incorrect(choice);
         }
     }
+
+    // Handle speaker button
+    $('#speakButton').click(function () {
+        console.log("speaker clicked");
+        var msg = new SpeechSynthesisUtterance($scope.word);
+        msg.rate = 0.5;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(msg);
+    });
 
     // Handle button clicks
     $("#choice1").click(function () {

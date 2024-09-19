@@ -48,7 +48,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">mode <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a ng-href="#" ng-click="setmode('any')">any letter</a></li>
-                            <li><a ng-href="#" ng-click="setmode('first')">first letter only</a></li>
+                            <li><a ng-href="#" ng-click="setmode('double')">double letter</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -63,12 +63,13 @@
     <div>
         <center>
             <div>
-                <img ng-if="imageExists" src="img/{{word}}.png">
+                <img src="img/{{word}}.png">
             </div>
             
             <div>
                 <h1 style="font-size: 72px;">{{clue}} </h1>
             </div>
+            <button id="speakButton">🔊</button> 
             <div ng-hide="!right_indicator">
                 <h1 style="font-size: 72px; color: #468847">✔</h1>
             </div>
@@ -80,11 +81,11 @@
 
     <div id="game-container">
         <p id="clue"></p>
-        <button id="choice1"></button>
-        <button id="choice2"></button>
-        <button id="choice3"></button>
-        <button id="choice4"></button>
-        <button id="choice5"></button>
+        <button id="choice1" class="choice-button"></button>
+        <button id="choice2" class="choice-button"></button>
+        <button id="choice3" class="choice-button"></button>
+        <button id="choice4" class="choice-button"></button>
+        <button id="choice5" class="choice-button"></button>
     </div>
     
     
