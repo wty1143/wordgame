@@ -24,10 +24,6 @@
   cursor: pointer;
 }
 
-#game-container button {
-  
-}
-
 #speakButton {
   font-size: 24px; /* 調整字體大小 */
   padding: 10px 15px; /* 調整內邊距 */
@@ -45,4 +41,14 @@
 #speakButton:hover {
   background-color: #e0e0e0; /* Slightly darker on hover */
   cursor: pointer;
+}
+
+.clue-container {
+  display: flex;
+  flex-direction: row; /* 水平排列 */
+  align-items: center; /* 垂直置中 */
+}
+
+.clue-container h1 {
+  flex-grow: 1; /* 讓文字擴展以佔據剩餘空間 */
 }
