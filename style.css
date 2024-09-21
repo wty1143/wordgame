@@ -52,3 +52,7 @@
 .clue-container h1 {
   flex-grow: 1; /* 讓文字擴展以佔據剩餘空間 */
 }
+
+.digits {
+  position: absolute;
+}

@@ -20,13 +20,12 @@ function GameCntl($scope, $timeout) {
     $scope.timeout = 0;
     $scope.mode = "double";
 
-
     function pickRandomDoubleChoices(word, index){
-        const choices = [word[index].toUpperCase()+word[index+1].toUpperCase()];
+        const choices = [word[index].toLowerCase()+word[index+1].toLowerCase()];
         let usedLetters = choices;
         while (choices.length < 5) {
-            const r1 = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
-            const r2 = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+            const r1 = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+            const r2 = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
             if (!usedLetters.includes(r1+r2)) {
                 choices.push(r1+r2);
             }
@@ -37,12 +36,12 @@ function GameCntl($scope, $timeout) {
 
     // Function to pick random letters for choices
     function pickRandomChoices(word, index) {
-        const choices = [word[index].toUpperCase()];
+        const choices = [word[index].toLowerCase()];
         let usedLetters = choices;
-        console.log("Using letters" + word[index].toUpperCase())
+        console.log("Using letters" + word[index].toLowerCase())
         while (choices.length < 5) {
             console.log("choices.length" + choices.length)
-            const randomLetter = String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+            const randomLetter = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
             if (!usedLetters.includes(randomLetter)) {
                 choices.push(randomLetter);
                 // usedLetters.push(randomLetter);
@@ -53,6 +52,17 @@ function GameCntl($scope, $timeout) {
         choices.sort(() => Math.random() - 0.5);
         return choices;
     }
+
+    // https://www.jqueryscript.net/time-clock/Cool-Mechanical-Scoreboard-Style-Countdown-Plugin-For-jQuery-Countdown.html
+    $scope.timer=$(function(){
+        $(".digits").countdown({
+          image: "js/img/digits.png",
+          format: "mmss",
+          startTime: "1500",
+          digitWidth: 67,
+          digitHeight: 90
+        });
+    });
 
     $scope.setmode = function(m) {
         $scope.mode = m;
@@ -137,7 +147,7 @@ function GameCntl($scope, $timeout) {
 
     //     console.log($scope.clue);
 
-    //     if(c == $scope.letter.toUpperCase()) {
+    //     if(c == $scope.letter.toLowerCase()) {
     //         $scope.correct();
     //     } else if(c == ' ') {
     //         $scope.next();
@@ -159,7 +169,7 @@ function GameCntl($scope, $timeout) {
             $scope.clue = newClue;
         });
 
-        if (choice === $scope.answer.toUpperCase()) {
+        if (choice === $scope.answer.toLowerCase()) {
             $scope.correct();
         } else {
             $scope.incorrect(choice);
