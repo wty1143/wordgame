@@ -19,6 +19,7 @@ function GameCntl($scope, $timeout) {
     $scope.number_right = 0;
     $scope.timeout = 0;
     $scope.mode = "double";
+    usedWords = [];
 
     function pickRandomDoubleChoices(word, index){
         const choices = [word[index].toLowerCase()+word[index+1].toLowerCase()];
@@ -72,9 +73,23 @@ function GameCntl($scope, $timeout) {
     $scope.next = function() {
 
         $scope.timeout = 0;
-
-        // Pick a random word
-        $scope.word = words[Math.floor(Math.random()*words.length)];
+        if (usedWords.length === words.length) {
+            usedWords = []; // 清空 usedWords 陣列
+            $('#game-container').hide();
+            $('#choice-container').hide();
+            $('#endPage').show()
+            return false;
+        }
+    
+        // 選擇一個新的隨機單字，直到找到一個還沒使用過的
+        const availableWords = words.filter(word => !usedWords.includes(word));
+        $scope.word = availableWords[Math.floor(Math.random() * availableWords.length)];
+    
+        // 將新單字加入已使用列表
+        usedWords.push($scope.word);
+        
+        // Pick a random word 這樣可能會挑到一樣的
+        //$scope.word = words[Math.floor(Math.random()*words.length)];
 
         // Select a letter
         if($scope.mode == "any") {
