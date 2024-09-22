@@ -4,7 +4,7 @@ hen
 red
 let
 get
-yet
+yet, the power of yet
 wet
 
 made
@@ -13,7 +13,7 @@ day
 look
 they
 out
-fly, stinky
+fly, bird
 write
 every, everyone, everything, everyday
 
@@ -56,7 +56,7 @@ measure cup
 hand lens
 draw
 line
-match
+match, matching match
 tool
 picture
 skin
@@ -65,3 +65,43 @@ nose
 learn
 apple
 observe
+
+# Animal
+monkey
+robin, bird
+cardinal
+
+dog
+food
+gym
+boy
+mom
+door
+fireman 
+tiger
+jungle
+turkey
+farm
+lion 
+giraffe
+kangaroo 
+cat
+elephant 
+horse 
+ant
+zoo
+
+where, ?
+what, What Does That Mean
+who, ?
+which, ?
+when, ?
+how, ?
+
+# HFW
+library
+supermarket 
+phone
+shoes
+cup
+umbrella

@@ -15,6 +15,7 @@ for word in lines:
         second = ' '.join(word.split(',')[1:]).strip()
     words_set[first] = ''
     if first in images: continue
+    if f'{first}_1' in images: continue
 
     print(f'Downloading {word}, keyword: {second}')
     query = f'{first} {second}' if second else f'{first}'
