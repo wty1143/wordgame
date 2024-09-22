@@ -17,13 +17,13 @@
      <![endif]-->
     
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="js/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/jquery.jplayer.min.js"></script>
     <script src="js/jquery.countdown.min.js"></script>
+    <script src="js/jquery.fireworks.js"></script>
     <script src="words.js"></script>
     <script src="game.js"></script>
-    
     <style>
         body {
             padding-top: 70px;
@@ -32,6 +32,7 @@
     </style>
 </head>
 <body>
+    <div class="demo"></div>
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -54,7 +55,7 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a>{{number_right}} correct</a></li>
+                    <li><a>{{number_right}} correct / {{number_total}} total</a></li>
                 </ul>
             </div>
             
@@ -88,6 +89,10 @@
         <button id="choice3" class="choice-button"></button>
         <button id="choice4" class="choice-button"></button>
         <button id="choice5" class="choice-button"></button>
+    </div>
+
+    <div ng-hide="!EndPage">
+        
     </div>
     
     

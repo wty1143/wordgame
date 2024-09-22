@@ -7,8 +7,6 @@ function speak(str) {
     window.speechSynthesis.speak(msg);
 }
 
-
-
 function GameCntl($scope, $timeout) {
     $scope.clue = "_ar";
     $scope.word = "car";
@@ -19,6 +17,7 @@ function GameCntl($scope, $timeout) {
     $scope.number_right = 0;
     $scope.timeout = 0;
     $scope.mode = "double";
+    $scope.number_total = words.length;
     usedWords = [];
 
     function pickRandomDoubleChoices(word, index){
@@ -77,7 +76,15 @@ function GameCntl($scope, $timeout) {
             usedWords = []; // 清空 usedWords 陣列
             $('#game-container').hide();
             $('#choice-container').hide();
-            $('#endPage').show()
+            $scope.$apply(function () {
+                $scope.EndPage = true;
+                $('.demo').fireworks({
+                    sound: true,
+                    opacity:0.9,
+                    width: '100%',
+                    height: '100%'
+                });
+            });
             return false;
         }
     
