@@ -11,7 +11,7 @@
         var fireworksField = this
           , particles = []
           , rockets = []
-          , MAX_PARTICLES = 400
+          , MAX_PARTICLES = 200
           , SCREEN_WIDTH = options.width
           , SCREEN_HEIGHT = options.height;
 

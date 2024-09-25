@@ -20,12 +20,36 @@ function GameCntl($scope, $timeout) {
     $scope.number_total = words.length;
     usedWords = [];
 
+    function countVowels(str) {
+        const matches = str.match(/[aeiouy]/gi); 
+        return matches ? matches.length : 0;
+    }
+
     function pickRandomDoubleChoices(word, index){
+        const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
         const choices = [word[index].toLowerCase()+word[index+1].toLowerCase()];
+        
+        if (word[index+1].toLowerCase() == 'm'){
+            choices.push(word[index].toLowerCase()+'n')
+        }
+        if (word[index+1].toLowerCase() == 'n'){
+            choices.push(word[index].toLowerCase()+'m')
+        }
+        if (word[index].toLowerCase() == 'a'){
+            choices.push('e'+word[index+1].toLowerCase())
+        }
+        if (word[index].toLowerCase() == 'e'){
+            choices.push('a'+word[index+1].toLowerCase())
+        }
+
         let usedLetters = choices;
         while (choices.length < 5) {
-            const r1 = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
-            const r2 = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+            if (vowels.includes(word[index].toLowerCase())){
+                r1 = vowels[Math.floor(Math.random() * vowels.length)];
+            }else{
+                r1 = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+            }
+            r2 = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
             if (!usedLetters.includes(r1+r2)) {
                 choices.push(r1+r2);
             }
@@ -111,9 +135,15 @@ function GameCntl($scope, $timeout) {
             $scope.choices = choices;
 
         } else if ($scope.mode == "double") {
-            $scope.index = Math.floor(Math.random()*($scope.word.length-1));
-            while ($scope.word[$scope.index] == ' ' || $scope.word[$scope.index+1] == ' '){
+
+            const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+            if (countVowels($scope.word) == 1 && vowels.includes($scope.word[$scope.word.length-1])){
                 $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+            }else{
+                $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+                while ($scope.word[$scope.index] == ' ' || $scope.word[$scope.index+1] == ' ' || !vowels.includes($scope.word[$scope.index])){
+                    $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+                }
             }
 
             $scope.answer = $scope.word.substr($scope.index, 2);
@@ -248,7 +278,7 @@ function GameCntl($scope, $timeout) {
         if($scope.timeout != 0) {
             $timeout.cancel($scope.timeout);
         }
-        $scope.timeout = $timeout($scope.next, 2000);
+        $scope.timeout = $timeout($scope.next, 1000);
 
         $('#jpId').jPlayer("play");
     };
@@ -267,7 +297,7 @@ function GameCntl($scope, $timeout) {
         if($scope.timeout != 0) {
             $timeout.cancel($scope.timeout);
         }
-        $scope.timeout = $timeout($scope.resetclue, 2000);
+        $scope.timeout = $timeout($scope.resetclue, 1000);
 
         speak($scope.clue + "?");
     };
