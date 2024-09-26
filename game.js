@@ -18,7 +18,7 @@ function GameCntl($scope, $timeout) {
     $scope.timeout = 0;
     $scope.mode = "double";
     $scope.number_total = words.length;
-    usedWords = [];
+    $scope.usedWords = [];
 
     function countVowels(str) {
         const matches = str.match(/[aeiouy]/gi); 
@@ -96,8 +96,8 @@ function GameCntl($scope, $timeout) {
     $scope.next = function() {
 
         $scope.timeout = 0;
-        if (usedWords.length === words.length) {
-            usedWords = []; // 清空 usedWords 陣列
+        if ($scope.usedWords.length === words.length) {
+            $scope.usedWords = []; // 清空 usedWords 陣列
             $('#game-container').hide();
             $('#choice-container').hide();
             $scope.$apply(function () {
@@ -113,11 +113,11 @@ function GameCntl($scope, $timeout) {
         }
     
         // 選擇一個新的隨機單字，直到找到一個還沒使用過的
-        const availableWords = words.filter(word => !usedWords.includes(word));
+        const availableWords = words.filter(word => !$scope.usedWords.includes(word));
         $scope.word = availableWords[Math.floor(Math.random() * availableWords.length)];
     
         // 將新單字加入已使用列表
-        usedWords.push($scope.word);
+        $scope.usedWords.push($scope.word);
         
         // Pick a random word 這樣可能會挑到一樣的
         //$scope.word = words[Math.floor(Math.random()*words.length)];
@@ -265,7 +265,8 @@ function GameCntl($scope, $timeout) {
 
     $scope.correct = function() {
 
-        $scope.number_right += 1;
+        // $scope.number_right += 1;
+        $scope.number_right = $scope.usedWords.length;
 
         $scope.$apply(function () {
             $scope.right_indicator = true;
@@ -300,6 +301,8 @@ function GameCntl($scope, $timeout) {
         $scope.timeout = $timeout($scope.resetclue, 1000);
 
         speak($scope.clue + "?");
+
+        $scope.usedWords = $scope.usedWords.filter(word => word !== $scope.word);
     };
 
     $scope.next();
