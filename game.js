@@ -164,6 +164,8 @@ function GameCntl($scope, $timeout) {
         $("#choice3").text(choices[2]);
         $("#choice4").text(choices[3]);
         $("#choice5").text(choices[4]);
+
+        $scope.startTime = new Date();
     };
 
     $scope.resetclue = function() {
@@ -210,6 +212,12 @@ function GameCntl($scope, $timeout) {
 
     // We then use $scope.$apply to update the Angular scope with the new clue value. This ensures that the change is reflected in the HTML view.
     function checkAnswer(choice) {
+        let endTime = new Date();
+        let elapsedTime = (endTime - $scope.startTime) / 1000;
+        if (elapsedTime > 8){
+            $scope.usedWords = $scope.usedWords.filter(word => word !== $scope.word);
+        }
+
         console.log(choice + " clicked");
         console.log("Answer: " + $scope.answer)
         if ($scope.mode == "any"){
