@@ -1,4 +1,4 @@
-const words = [
+const lesson1 = [
 "leg",
 "web",
 "hen",
@@ -93,3 +93,40 @@ const words = [
 "cup",
 "umbrella",
 ];
+
+const lesson2 = [
+"down",
+"four",
+"from",
+"her",
+"went",
+"egg",
+"will",
+"tell",
+"well",
+"grass",
+"miss",
+"paint",
+"paper",
+"chalk",
+"yarn",
+"glue",
+"tape",
+"red",
+"yellow",
+"blue",
+"white",
+"black",
+"green",
+"purple",
+"orange",
+"pink",
+"gray",
+"brown",
+];
+
+const words = {
+"lesson1": lesson1,
+"lesson2": lesson2,
+}
+

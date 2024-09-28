@@ -17,8 +17,41 @@ function GameCntl($scope, $timeout) {
     $scope.number_right = 0;
     $scope.timeout = 0;
     $scope.mode = "double";
-    $scope.number_total = words.length;
+    $scope.lesson = "lesson2";
     $scope.usedWords = [];
+
+    for (const key in words) {
+        // 選擇 `<ul>` 元素
+        var ulElement = document.getElementById('lesson-menu');
+
+        // 建立 `<li>` 元素
+        var liElement = document.createElement('li');
+
+        // 建立 `<a>` 元素
+        var aElement = document.createElement('a');
+        aElement.setAttribute('ng-href', '#');
+        // aElement.setAttribute('href', '#');
+        // aElement.setAttribute('ng-click', "setlesson('"+key+"')");
+        // aElement.setAttribute('ng-click', "setlesson('"+key+"')");
+        aElement.textContent = key;
+
+        aElement.addEventListener('click', function() {
+            $scope.setlesson(key); 
+            $scope.$apply(); // 手動更新 AngularJS 作用域
+        });
+
+        // 將 `<a>` 元素添加到 `<li>` 元素中
+        liElement.appendChild(aElement);
+
+        // 將 `<li>` 元素添加到 `<ul>` 元素中
+        ulElement.appendChild(liElement);
+
+        $scope.$apply();
+    }
+
+    // 設定 click callback 函式
+    
+  
 
     function countVowels(str) {
         const matches = str.match(/[aeiouy]/gi); 
@@ -89,14 +122,24 @@ function GameCntl($scope, $timeout) {
     });
 
     $scope.setmode = function(m) {
+        console.log("setmode " + m);
         $scope.mode = m;
         $scope.next();
     }
 
+    $scope.setlesson = function(m) {
+        console.log("setlesson " + m);
+        $scope.lesson = m;
+        $scope.usedWords = [];
+        $scope.next();
+    }
+
     $scope.next = function() {
+        $scope.words = words[$scope.lesson]
+        $scope.number_total = $scope.words.length;
 
         $scope.timeout = 0;
-        if ($scope.usedWords.length === words.length) {
+        if ($scope.usedWords.length === $scope.words.length) {
             $scope.usedWords = []; // 清空 usedWords 陣列
             $('#game-container').hide();
             $('#choice-container').hide();
@@ -113,7 +156,7 @@ function GameCntl($scope, $timeout) {
         }
     
         // 選擇一個新的隨機單字，直到找到一個還沒使用過的
-        const availableWords = words.filter(word => !$scope.usedWords.includes(word));
+        const availableWords = $scope.words.filter(word => !$scope.usedWords.includes(word));
         $scope.word = availableWords[Math.floor(Math.random() * availableWords.length)];
     
         // 將新單字加入已使用列表

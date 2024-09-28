@@ -9,7 +9,6 @@ python3 image_dl.py
 fd . ./dataset -tf ./dataset --exec cp {} ./img
 
 image_dir="img"
-words_js="words.js"
 
 # Loop through each file in the directory
 for filename in "$image_dir"/*; do
@@ -17,10 +16,6 @@ for filename in "$image_dir"/*; do
   if [[ -f "$filename" ]]; then
     # Extract the filename without the path
     base_filename=$(basename "$filename")
-    
-    # Extract the extension (lowercase for case-insensitive comparison)
-    extension="${base_filename##*.}"
-    extension=$(tr [:upper:] [:lower:] <<< "$extension")
     
     # Call your convert.py script with the full path and desired output filename
     echo python3 img_resize.py -i "$filename" -e png -x 300
