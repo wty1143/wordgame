@@ -1,3 +1,26 @@
+const number = [
+"One",
+"Two",
+"Three",
+"Four",
+"Five",
+"Six",
+"Seven",
+"Eight",
+"Nine",
+"Ten",
+"Eleven",
+"Twelve",
+"Thirteen",
+"Fourteen",
+"Fifteen",
+"Sixteen",
+"Seventeen",
+"Eighteen",
+"Nineteen",
+"Twenty",
+];
+
 const lesson1 = [
 "leg",
 "web",
@@ -126,6 +149,7 @@ const lesson2 = [
 ];
 
 const words = {
+"number": number,
 "lesson1": lesson1,
 "lesson2": lesson2,
 }
