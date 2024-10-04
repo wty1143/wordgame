@@ -23,6 +23,7 @@ def download_image(name):
     for word in lines:
         if not word: continue
         if word.startswith('#'): continue
+        word = word.lower()
         first, second = word.strip(), ''
         if word.split(','):
             first = word.split(',')[0].strip()

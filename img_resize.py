@@ -213,7 +213,7 @@ if any([new_heigh,new_width]):
             if args.out_format == 'jpg':
                 out_image = out_image.convert('RGB')
             output_file = input_file.replace('_1', '')
-            out_name = str(output_file).split(".")[0] + "." + out_format
+            out_name = str(output_file).lower().split(".")[0] + "." + out_format
             out_image.save(out_name)
             if '_1' in input_file and os.path.exists(input_file):
                 os.remove(input_file)
