@@ -9,7 +9,7 @@ function speak(str) {
 
 function GameCntl($scope, $timeout) {
     $scope.clue = "_ar";
-    $scope.word = "car";
+    $scope.word = "";
     $scope.letter = "c";
     $scope.index = 0;
     $scope.right_indicator = false;
@@ -156,8 +156,17 @@ function GameCntl($scope, $timeout) {
         }
     
         // 選擇一個新的隨機單字，直到找到一個還沒使用過的
+        // 盡可能避免挑到上次的
+
         const availableWords = $scope.words.filter(word => !$scope.usedWords.includes(word));
-        $scope.word = availableWords[Math.floor(Math.random() * availableWords.length)];
+        if (availableWords.every(element => element === $scope.word)) {
+            $scope.word = availableWords[Math.floor(Math.random() * availableWords.length)];
+        } else {
+            do {
+                new_word = availableWords[Math.floor(Math.random() * availableWords.length)];
+            } while (new_word == $scope.word);
+            $scope.word = new_word;
+        }
     
         // 將新單字加入已使用列表
         $scope.usedWords.push($scope.word);
@@ -226,32 +235,6 @@ function GameCntl($scope, $timeout) {
 
         speak($scope.word);
     };
-
-    // $scope.keyup = function(e) {
-    //     // If they already got it right, ignore input
-    //     if($scope.right_indicator) {
-    //         return;
-    //     }
-
-    //     console.log('keyup ' + e.keyCode);
-
-    //     c = String.fromCharCode(e.keyCode);
-
-    //     // Ignore key presses outside of A-Z
-    //     if(c < 'A' || c > 'Z') {
-    //         return;
-    //     }
-
-    //     console.log($scope.clue);
-
-    //     if(c == $scope.letter.toLowerCase()) {
-    //         $scope.correct();
-    //     } else if(c == ' ') {
-    //         $scope.next();
-    //     } else {
-    //         $scope.incorrect(c);
-    //     }
-    // };
 
     // We then use $scope.$apply to update the Angular scope with the new clue value. This ensures that the change is reflected in the HTML view.
     function checkAnswer(choice) {
