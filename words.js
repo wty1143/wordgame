@@ -21,6 +21,33 @@ const number = [
 "twenty",
 ];
 
+const TEST_241016 = [
+"plant",
+"duck",
+"sum",
+"real",
+"pretend",
+"fur",
+"feathers",
+"scales",
+"blue jay",
+"ladybug",
+"elephant",
+"koala",
+"spider",
+"frog",
+"hop",
+"crawl",
+"shelter",
+"grow",
+"know",
+"cycle",
+"hatchling",
+"tadpole",
+"adult",
+"newborn",
+];
+
 const lesson1 = [
 "leg",
 "web",
@@ -150,6 +177,7 @@ const lesson2 = [
 
 const words = {
 "number": number,
+"TEST_241016": TEST_241016,
 "lesson1": lesson1,
 "lesson2": lesson2,
 }
