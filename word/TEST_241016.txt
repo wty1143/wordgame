@@ -7,7 +7,7 @@ fur
 feathers
 scales, fish
 blue jay
-ladybug
+ladybug, bug
 elephant
 koala
 spider
@@ -22,3 +22,7 @@ hatchling
 tadpole
 adult
 newborn
+hop, jump
+food
+air
+water

@@ -46,6 +46,16 @@ const TEST_241016 = [
 "tadpole",
 "adult",
 "newborn",
+"food",
+"air",
+"water",
+];
+
+const plural_lesson1 = [
+"tree",
+"fly",
+"bird",
+"mouse",
 ];
 
 const lesson1 = [
@@ -178,6 +188,7 @@ const lesson2 = [
 const words = {
 "number": number,
 "TEST_241016": TEST_241016,
+"plural_lesson1": plural_lesson1,
 "lesson1": lesson1,
 "lesson2": lesson2,
 }
