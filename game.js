@@ -74,6 +74,9 @@ function GameCntl($scope, $timeout) {
         if (word[index].toLowerCase() == 'e'){
             choices.push('a'+word[index+1].toLowerCase())
         }
+        if (word[index].toLowerCase() == 'y'){
+            choices.push('i'+word[index+1].toLowerCase())
+        }
 
         let usedLetters = choices;
         while (choices.length < 5) {
@@ -136,6 +139,20 @@ function GameCntl($scope, $timeout) {
 
     $scope.next = function() {
         $scope.words = words[$scope.lesson]
+        if (typeof $scope.words === 'object' && $scope.words !== null && Array.isArray($scope.words)) {
+            $scope.test_type = "MissingCharacters";
+        }else if (typeof $scope.words === 'object' && $scope.words !== null && !Array.isArray($scope.words)){
+            $scope.test_type = $scope.words["type"];
+            if ($scope.test_type === "plural"){
+                $scope.words_dict = $scope.words;
+                $scope.words = Object.keys($scope.words_dict["words"]);
+            }
+        }else{
+            console.log("[Error] Unkown words type: " + typeof $scope.words);
+        }
+        
+        console.log("Preparing test type: " + $scope.test_type);
+
         $scope.number_total = $scope.words.length;
 
         $scope.timeout = 0;
@@ -175,47 +192,55 @@ function GameCntl($scope, $timeout) {
         //$scope.word = words[Math.floor(Math.random()*words.length)];
 
         // Select a letter
-        if($scope.mode == "any") {
-            $scope.index = Math.floor(Math.random()*$scope.word.length);
-            // Avoid picking up whitespace
-            while ($scope.word[$scope.index] == ' '){
+        if ($scope.test_type == "MissingCharacters"){
+            if($scope.mode == "any") {
                 $scope.index = Math.floor(Math.random()*$scope.word.length);
-            }
-
-            $scope.answer = $scope.word[$scope.index];
-            choices = pickRandomChoices($scope.word, $scope.index);
-            $scope.choices = choices;
-
-        } else if ($scope.mode == "double") {
-
-            const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
-            if (countVowels($scope.word) == 1 && vowels.includes($scope.word[$scope.word.length-1])){
-                $scope.index = Math.floor(Math.random()*($scope.word.length-1));
-            }else{
-                $scope.index = Math.floor(Math.random()*($scope.word.length-1));
-                while ($scope.word[$scope.index] == ' ' || $scope.word[$scope.index+1] == ' ' || !vowels.includes($scope.word[$scope.index])){
-                    $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+                // Avoid picking up whitespace
+                while ($scope.word[$scope.index] == ' '){
+                    $scope.index = Math.floor(Math.random()*$scope.word.length);
                 }
+
+                $scope.answer = $scope.word[$scope.index];
+                choices = pickRandomChoices($scope.word, $scope.index);
+                $scope.choices = choices;
+
+            } else if ($scope.mode == "double") {
+
+                const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+                if (countVowels($scope.word) == 1 && vowels.includes($scope.word[$scope.word.length-1])){
+                    $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+                }else{
+                    $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+                    while ($scope.word[$scope.index] == ' ' || $scope.word[$scope.index+1] == ' ' || !vowels.includes($scope.word[$scope.index])){
+                        $scope.index = Math.floor(Math.random()*($scope.word.length-1));
+                    }
+                }
+
+                $scope.answer = $scope.word.substr($scope.index, 2);
+                console.log("[next] scope.answer: " + $scope.answer);
+                choices = pickRandomDoubleChoices($scope.word, $scope.index);
+                $scope.choices = choices;
             }
-
-            $scope.answer = $scope.word.substr($scope.index, 2);
-            console.log("[next] scope.answer: " + $scope.answer);
-            choices = pickRandomDoubleChoices($scope.word, $scope.index);
-            $scope.choices = choices;
-
+        }else if ($scope.test_type == "plural"){
+            
+            $scope.choices = $scope.words_dict["words"][$scope.word];
+            console.log($scope.words_dict)
+            $("#choice5").hide()
+            
         }
-
+        console.log("[next] scope.choices: " + $scope.choices);
         console.log("[next] scope.answer: " + $scope.answer);
 
         $scope.resetclue();
         // Update clue and button text
         // $scope.clue = $scope.word.substr(0, $scope.index) + '_' + $scope.word.substr($scope.index + 1);
 
-        $("#choice1").text(choices[0]);
-        $("#choice2").text(choices[1]);
-        $("#choice3").text(choices[2]);
-        $("#choice4").text(choices[3]);
-        $("#choice5").text(choices[4]);
+        $("#choice1").text($scope.choices[0]);
+        $("#choice2").text($scope.choices[1]);
+        $("#choice3").text($scope.choices[2]);
+        $("#choice4").text($scope.choices[3]);
+        $("#choice5").text($scope.choices[4]);
+        $scope.$apply()
 
         $scope.startTime = new Date();
     };

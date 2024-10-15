@@ -185,11 +185,16 @@ const lesson2 = [
 "brown",
 ];
 
+const plural_lesson1 = {
+    "cat": ["cats", "cates", "cat", "cattes"]
+}
+
 const words = {
 "number": number,
-"TEST_241016": TEST_241016,
-"plural_lesson1": plural_lesson1,
 "lesson1": lesson1,
 "lesson2": lesson2,
-}
+"TEST_241016": TEST_241016,
+"plural_lesson1": {"words": plural_lesson1, "type": "plural"},
+};
+
 
