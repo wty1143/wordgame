@@ -51,13 +51,6 @@ const TEST_241016 = [
 "water",
 ];
 
-const plural_lesson1 = [
-"tree",
-"fly",
-"bird",
-"mouse",
-];
-
 const lesson1 = [
 "leg",
 "web",
