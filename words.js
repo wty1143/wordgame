@@ -51,6 +51,40 @@ const TEST_241016 = [
 "water",
 ];
 
+const plural_lesson1 = [
+"tree",
+"fly",
+"bird",
+"mouse",
+];
+
+const TEST_241018 = [
+"all",
+"down",
+"four",
+"from",
+"her",
+"now",
+"saw",
+"went",
+"once",
+"ran",
+"friends",
+"fell",
+"dusty",
+"dull",
+"beautiful",
+"bufferfly",
+"thank",
+"dips",
+"egg",
+"will",
+"tell",
+"well",
+"grass",
+"miss",
+];
+
 const lesson1 = [
 "leg",
 "web",
@@ -178,16 +212,12 @@ const lesson2 = [
 "brown",
 ];
 
-const plural_lesson1 = {
-    "cat": ["cats", "cates", "cat", "cattes"]
-}
-
 const words = {
 "number": number,
+"TEST_241016": TEST_241016,
+"plural_lesson1": plural_lesson1,
+"TEST_241018": TEST_241018,
 "lesson1": lesson1,
 "lesson2": lesson2,
-"TEST_241016": TEST_241016,
-"plural_lesson1": {"words": plural_lesson1, "type": "plural"},
-};
-
+}
 
