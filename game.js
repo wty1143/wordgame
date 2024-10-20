@@ -1,10 +1,49 @@
 
+function shuffle(array) {
+    let currentIndex = array.length;
+  
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+  
+      // Pick a remaining element...
+      let randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+}
+  
 function speak(str) {
-
+    
+    // var synth = window.speechSynthesis;
+    // function setVoices() {
+    //     return new Promise((resolve, reject) => {
+    //         let timer;
+    //         timer = setInterval(() => {
+    //         if(synth.getVoices().length !== 0) {
+    //                 resolve(synth.getVoices());
+    //                 clearInterval(timer);
+    //             }
+    //         }, 10);
+    //     })
+    // }
+    // setVoices().then(voices => {
+    //     // 濾掉是 Google 語音的部份
+    //     voices = voices.filter(v => v.lang === "en-US");
+    //     var msg = new SpeechSynthesisUtterance(str);
+    //     msg.rate = 0.75;
+    //     // msg.voice = voices[Math.floor(Math.random() * voices.length)];
+    //     window.speechSynthesis.cancel();
+    //     window.speechSynthesis.speak(msg);
+    // });
     var msg = new SpeechSynthesisUtterance(str);
     msg.rate = 0.75;
+    // msg.voice = voices[Math.floor(Math.random() * voices.length)];
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(msg);
+    
 }
 
 function GameCntl($scope, $timeout) {
@@ -17,7 +56,7 @@ function GameCntl($scope, $timeout) {
     $scope.number_right = 0;
     $scope.timeout = 0;
     $scope.mode = "double";
-    $scope.lesson = "lesson2";
+    $scope.lesson = "plural_lesson1";
     $scope.usedWords = [];
 
     for (const key in words) {
@@ -50,8 +89,6 @@ function GameCntl($scope, $timeout) {
     }
 
     // 設定 click callback 函式
-    
-  
 
     function countVowels(str) {
         const matches = str.match(/[aeiouy]/gi); 
@@ -134,6 +171,7 @@ function GameCntl($scope, $timeout) {
         console.log("setlesson " + m);
         $scope.lesson = m;
         $scope.usedWords = [];
+        $scope.number_right = 0;
         $scope.next();
     }
 
@@ -146,6 +184,8 @@ function GameCntl($scope, $timeout) {
             if ($scope.test_type === "plural"){
                 $scope.words_dict = $scope.words;
                 $scope.words = Object.keys($scope.words_dict["words"]);
+            }else if ($scope.test_type === "MissingCharacters"){
+                $scope.test_type = "MissingCharacters";
             }
         }else{
             console.log("[Error] Unkown words type: " + typeof $scope.words);
@@ -190,6 +230,10 @@ function GameCntl($scope, $timeout) {
         
         // Pick a random word 這樣可能會挑到一樣的
         //$scope.word = words[Math.floor(Math.random()*words.length)];
+        
+        for (var i = 0; i < 5; i++) {
+            $("#choice" + (i+1)).show()
+        }
 
         // Select a letter
         if ($scope.test_type == "MissingCharacters"){
@@ -221,11 +265,27 @@ function GameCntl($scope, $timeout) {
                 choices = pickRandomDoubleChoices($scope.word, $scope.index);
                 $scope.choices = choices;
             }
+            for (var i = 0; i < $scope.choices.length; i++) {
+                $("#choice" + (i+1)).css("width", "100px");
+            }
+
         }else if ($scope.test_type == "plural"){
-            
+            $scope.answer = $scope.words_dict["words"][$scope.word][0];
             $scope.choices = $scope.words_dict["words"][$scope.word];
-            console.log($scope.words_dict)
-            $("#choice5").hide()
+            console.log($scope.choices);
+            shuffle($scope.choices)
+            console.log($scope.choices);
+            console.log($scope.words_dict["words"])
+            
+            for (var i = 0; i < $scope.choices.length; i++) {
+                $("#choice" + (i+1)).css("width", "34%");
+                $("#choice" + (i+1)).css("height", "80");
+            }
+
+            // Hide the unused choices
+            for (var i = $scope.choices.length; i < 5; i++) {
+                $("#choice" + (i+1)).hide()
+            }
             
         }
         console.log("[next] scope.choices: " + $scope.choices);
@@ -235,11 +295,9 @@ function GameCntl($scope, $timeout) {
         // Update clue and button text
         // $scope.clue = $scope.word.substr(0, $scope.index) + '_' + $scope.word.substr($scope.index + 1);
 
-        $("#choice1").text($scope.choices[0]);
-        $("#choice2").text($scope.choices[1]);
-        $("#choice3").text($scope.choices[2]);
-        $("#choice4").text($scope.choices[3]);
-        $("#choice5").text($scope.choices[4]);
+        for (var i = 0; i < $scope.choices.length; i++) {
+            $("#choice" + (i+1)).text($scope.choices[i]);
+        }
         $scope.$apply()
 
         $scope.startTime = new Date();
@@ -249,16 +307,20 @@ function GameCntl($scope, $timeout) {
         $scope.timeout = 0;
         $scope.right_indicator = false;
         $scope.wrong_indicator = false;
-
-        if ($scope.mode == "any"){
-            $scope.clue = $scope.word.substr(0, $scope.index) + '_'
-            + $scope.word.substr($scope.index + 1);
-        }else if ($scope.mode == "double"){
-            $scope.clue = $scope.word.substr(0, $scope.index) + '_ _'
-            + $scope.word.substr($scope.index + 2);
+        if ($scope.test_type == "MissingCharacters"){
+            if ($scope.mode == "any"){
+                $scope.clue = $scope.word.substr(0, $scope.index) + '_'
+                + $scope.word.substr($scope.index + 1);
+            }else if ($scope.mode == "double"){
+                $scope.clue = $scope.word.substr(0, $scope.index) + '_ _'
+                + $scope.word.substr($scope.index + 2);
+            }
+            speak($scope.word);
+        } else if ($scope.test_type == "plural"){
+            $scope.clue = "The plural of " + $scope.word + " is _____";
+            speak($scope.answer);
         }
-
-        speak($scope.word);
+        
     };
 
     // We then use $scope.$apply to update the Angular scope with the new clue value. This ensures that the change is reflected in the HTML view.
@@ -271,11 +333,17 @@ function GameCntl($scope, $timeout) {
 
         console.log(choice + " clicked");
         console.log("Answer: " + $scope.answer)
-        if ($scope.mode == "any"){
-            newClue = $scope.word.substr(0, $scope.index) + choice.toLowerCase() + $scope.word.substr($scope.index + 1);
-        }else {
-            newClue = $scope.word.substr(0, $scope.index) + choice.toLowerCase() + $scope.word.substr($scope.index + 2);
+        if ($scope.test_type == "MissingCharacters"){
+            if ($scope.mode == "any"){
+                newClue = $scope.word.substr(0, $scope.index) + choice.toLowerCase() + $scope.word.substr($scope.index + 1);
+            }else {
+                newClue = $scope.word.substr(0, $scope.index) + choice.toLowerCase() + $scope.word.substr($scope.index + 2);
+            }
+        }else if ($scope.test_type == "plural"){
+            newClue = "The plural of " + $scope.word + " is " + choice.toLowerCase();
         }
+
+            
         $scope.$apply(function () {
             $scope.clue = newClue;
         });
@@ -359,7 +427,11 @@ function GameCntl($scope, $timeout) {
         }
         $scope.timeout = $timeout($scope.resetclue, 1000);
 
-        speak($scope.clue + "?");
+        if ($scope.test_type == "MissingCharacters"){
+            speak($scope.clue + "?");
+        }else if ($scope.test_type == "plural"){
+            speak($scope.answer);
+        }
 
         $scope.usedWords = $scope.usedWords.filter(word => word !== $scope.word);
     };

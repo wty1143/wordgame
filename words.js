@@ -51,12 +51,32 @@ const TEST_241016 = [
 "water",
 ];
 
-const plural_lesson1 = [
-"tree",
-"fly",
-"bird",
-"mouse",
-];
+const plural_lesson1 = { 
+"mouse": ["mice", "mouses", "mousees", "micez"],
+"child": ["children", "childs", "childes", "childi"],
+"goose": ["geese", "gooses", "goosies", "goosen"],
+"fox": ["foxes", "foxs", "foxes", "foxen"],
+"book": ["books", "bookes", "bookis", "bookies"],
+"box": ["boxes", "boxs", "boxies", "boxen"],
+"man": ["men", "mans", "manes", "menin"],
+"tooth": ["teeth", "tooths", "toothes", "teethen"],
+"egg": ["eggs", "egges", "eggis", "eggies"],
+"pencil": ["pencils", "penciles", "pencilis", "pencilies"],
+"tape": ["tapes", "taps", "tapees", "tapen"],
+"glue": ["glues", "gluees", "gluis", "gluies"],
+"color": ["colors", "colores", "coloris", "colories"],
+"paint": ["paints", "paintes", "paintis", "painties"],
+"leg": ["legs", "leges", "leggis", "legies"],
+"grass": ["grasses", "grasss", "grassies", "grassen"],
+"person": ["people", "persons", "peoples", "persones"],
+"leaf": ["leaves", "leafs", "leafes", "leavs"],
+"house": ["houses", "hourses", "housis", "housies"],
+"bus": ["buses", "busses", "busis", "busies"],
+"baby": ["babies", "babys", "babyes", "babien"],
+"foot": ["feet", "foots", "footes", "footi"],
+"sheep": ["sheep", "sheeps", "sheepes", "sheepies"],
+"fish": ["fish", "fishes", "fishs", "fishen"],
+};
 
 const TEST_241018 = [
 "all",
@@ -74,7 +94,7 @@ const TEST_241018 = [
 "dusty",
 "dull",
 "beautiful",
-"bufferfly",
+"butterfly",
 "thank",
 "dips",
 "egg",
@@ -215,7 +235,7 @@ const lesson2 = [
 const words = {
 "number": number,
 "TEST_241016": TEST_241016,
-"plural_lesson1": plural_lesson1,
+"plural_lesson1": {"type": "plural", "words": plural_lesson1},
 "TEST_241018": TEST_241018,
 "lesson1": lesson1,
 "lesson2": lesson2,
