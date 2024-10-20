@@ -267,6 +267,7 @@ function GameCntl($scope, $timeout) {
             }
             for (var i = 0; i < $scope.choices.length; i++) {
                 $("#choice" + (i+1)).css("width", "100px");
+                $("#choice" + (i+1)).css("height", "100px");
             }
 
         }else if ($scope.test_type == "plural"){
