@@ -319,8 +319,8 @@ function GameCntl($scope, $timeout) {
             }
             speak($scope.word);
         } else if ($scope.test_type == "plural"){
-            $scope.clue = "The plural of " + $scope.word + " is _____";
-            speak($scope.answer);
+            $scope.clue = "The plural form of " + $scope.word + " is _____";
+            // speak($scope.answer);
         }
         
     };
