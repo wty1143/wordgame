@@ -272,7 +272,8 @@ function GameCntl($scope, $timeout) {
 
         }else if ($scope.test_type == "plural"){
             $scope.answer = $scope.words_dict["words"][$scope.word][0];
-            $scope.choices = $scope.words_dict["words"][$scope.word];
+            // Don't change the array itself, copy it and shuffle
+            $scope.choices = $scope.words_dict["words"][$scope.word].map((x) => x);
             console.log($scope.choices);
             shuffle($scope.choices)
             console.log($scope.choices);
@@ -359,7 +360,11 @@ function GameCntl($scope, $timeout) {
     // Handle speaker button
     $('#speakButton').click(function () {
         console.log("speaker clicked");
-        var msg = new SpeechSynthesisUtterance($scope.word);
+        if ($scope.test_type == "plural"){
+            var msg = new SpeechSynthesisUtterance($scope.answer);
+        }else{
+            var msg = new SpeechSynthesisUtterance($scope.word);
+        }
         msg.rate = 0.5;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(msg);
