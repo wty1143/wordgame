@@ -54,6 +54,7 @@ top_parser.add_argument('-t', '--transverse', action='store_true', dest="transve
 top_parser.add_argument('--r90', action='store_true', dest="rotate90", help="Rotate image 90 degrees.")
 top_parser.add_argument('--r180', action='store_true', dest="rotate180", help="Rotate image 180 degrees.")
 top_parser.add_argument('--r270', action='store_true', dest="rotate270", help="Rotate image 270 degrees.")
+top_parser.add_argument('--force', action='store_true')
 top_parser.add_argument('--version', action='version', version='%(prog)s 0.2b')
 
 supported_formats = ["bmp","dds","dib","eps","gif","ico","jpeg","jpg","pcx","png","tiff","webp"]
@@ -117,7 +118,7 @@ input_file = args.input_file
 if not input_file:
     print("Input file is required.")
     exit()
-if '_' not in input_file:
+if '_' not in input_file and not args.force:
     # print(f'Skip {input_file}')
     exit()
 input_file_path = Path(input_file)

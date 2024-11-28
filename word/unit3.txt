@@ -1,0 +1,20 @@
+game
+marble, ball
+puzzle
+card
+doll
+ball
+car
+kite
+dash
+rush
+fish
+wish
+ship
+shop
+predators
+prey
+leap
+web, spider
+cast
+spiral

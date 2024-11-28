@@ -105,6 +105,29 @@ const TEST_241018 = [
 "miss",
 ];
 
+const unit3 = [
+"game",
+"marble",
+"puzzle",
+"card",
+"doll",
+"ball",
+"car",
+"kite",
+"dash",
+"rush",
+"fish",
+"wish",
+"ship",
+"shop",
+"predators",
+"prey",
+"leap",
+"web",
+"cast",
+"spiral",
+];
+
 const lesson1 = [
 "leg",
 "web",
@@ -237,6 +260,7 @@ const words = {
 "TEST_241016": TEST_241016,
 "plural_lesson1": {"type": "plural", "words": plural_lesson1},
 "TEST_241018": TEST_241018,
+"unit3": unit3,
 "lesson1": lesson1,
 "lesson2": lesson2,
 }
