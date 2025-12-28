@@ -1,0 +1,8 @@
+A pet, like a dog or a cat,animal,point,keep,let's
+The sound we use to talk,voice,something,won't,point
+To hold or save something,keep,voice,point,animal
+A thing, not a person,something,voice,high,keep
+Will not,won't,point,heads up,voice
+Attention,heads up,voice,keep,animal
+To show something,point,heads up,voice,high
+A way to say "Come on!",let's,point,heads up,voice

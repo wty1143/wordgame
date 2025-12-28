@@ -56,7 +56,7 @@ function GameCntl($scope, $timeout) {
     $scope.number_right = 0;
     $scope.timeout = 0;
     $scope.mode = "double";
-    $scope.lesson = "plural_lesson1";
+    $scope.lesson = "definition_unit3";
     $scope.usedWords = [];
 
     for (const key in words) {
@@ -176,12 +176,19 @@ function GameCntl($scope, $timeout) {
     }
 
     $scope.next = function() {
+        $('#question_mark').hide();
+        $('#img').show();
         $scope.words = words[$scope.lesson]
         if (typeof $scope.words === 'object' && $scope.words !== null && Array.isArray($scope.words)) {
             $scope.test_type = "MissingCharacters";
         }else if (typeof $scope.words === 'object' && $scope.words !== null && !Array.isArray($scope.words)){
             $scope.test_type = $scope.words["type"];
             if ($scope.test_type === "plural"){
+                $scope.words_dict = $scope.words;
+                $scope.words = Object.keys($scope.words_dict["words"]);
+            }else if ($scope.test_type === "definition"){
+                $('#img').hide();
+                $('#question_mark').show();
                 $scope.words_dict = $scope.words;
                 $scope.words = Object.keys($scope.words_dict["words"]);
             }else if ($scope.test_type === "MissingCharacters"){
@@ -270,7 +277,7 @@ function GameCntl($scope, $timeout) {
                 $("#choice" + (i+1)).css("height", "100px");
             }
 
-        }else if ($scope.test_type == "plural"){
+        }else if ($scope.test_type == "plural" || $scope.test_type == "definition"){
             $scope.answer = $scope.words_dict["words"][$scope.word][0];
             // Don't change the array itself, copy it and shuffle
             $scope.choices = $scope.words_dict["words"][$scope.word].map((x) => x);
@@ -318,6 +325,8 @@ function GameCntl($scope, $timeout) {
                 + $scope.word.substr($scope.index + 2);
             }
             speak($scope.word);
+        } else if ($scope.test_type == "definition"){
+            $scope.clue = $scope.word;
         } else if ($scope.test_type == "plural"){
             $scope.clue = "The plural form of " + $scope.word + " is _____";
             // speak($scope.answer);
@@ -343,8 +352,9 @@ function GameCntl($scope, $timeout) {
             }
         }else if ($scope.test_type == "plural"){
             newClue = "The plural of " + $scope.word + " is " + choice.toLowerCase();
+        }else if ($scope.test_type == "definition"){
+            newClue = $scope.clue
         }
-
             
         $scope.$apply(function () {
             $scope.clue = newClue;

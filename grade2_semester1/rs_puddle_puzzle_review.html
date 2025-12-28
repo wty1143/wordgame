@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Puddle Puzzle Quiz</title>
+    <style>
+        :root { --primary: #2980b9; --success: #27ae60; --error: #e74c3c; --bg: #f8f9fa; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); padding: 20px; color: #2c3e50; line-height: 1.5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); font-size: 24px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; font-size: 14px; }
+        .question-card { margin-bottom: 25px; padding: 15px; border-radius: 12px; border: 1px solid #eee; transition: 0.3s; }
+        .question-text { font-weight: 600; font-size: 17px; margin-bottom: 12px; display: block; }
+        .options { display: grid; gap: 10px; }
+        .option-btn { 
+            background: #fff; border: 2px solid #ddd; padding: 12px 15px; border-radius: 10px; 
+            text-align: left; font-size: 16px; cursor: pointer; transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent; /* iPad 點擊優化 */
+        }
+        .option-btn:active { transform: scale(0.98); }
+        .correct { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
+        .wrong { background: var(--error) !important; color: white !important; border-color: var(--error) !important; }
+        .score-box { text-align: center; margin-top: 30px; padding: 20px; background: #ebf5fb; border-radius: 15px; display: none; }
+        #check-btn { 
+            display: block; width: 100%; padding: 15px; background: var(--primary); color: white; 
+            border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin-top: 20px; 
+        }
+        .citation { font-size: 11px; color: #bdc3c7; display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Detective Quiz 🕵️‍♂️</h1>
+    <p class="subtitle">The Puddle Puzzle & Grammar Review</p>
+
+    <div id="quiz-content">
+        <!-- 題目會由 JS 自動生成 -->
+    </div>
+
+    <button id="check-btn" onclick="calculateScore()">Finish & Show Score</button>
+
+    <div id="score-result" class="score-box">
+        <h2 id="score-text"></h2>
+        <p>Keep up the good work, Ace Detective!</p>
+        <button onclick="location.reload()" style="padding: 10px 20px; border-radius: 8px; border: none; background: #34495e; color: white;">Try Again</button>
+    </div>
+</div>
+
+<script>
+const questions = [
+    // Vocabulary [1-3]
+    { q: "What is a 'mystery'?", a: ["Something easy to know", "Something hard to understand or not known about", "A type of book"], c: 1, ref: "[1]" },
+    { q: "Someone described as 'ace' is...", a: ["Extremely good at something", "Very slow at sports", "Feeling sad"], c: 0, ref: "[1]" },
+    { q: "What does 'located' mean?", a: ["To be lost", "Where something is", "To move away"], c: 1, ref: "[1]" },
+    { q: "If something 'vanished', it means it...", a: ["Turned blue", "Is new", "Disappeared and can no longer be seen"], c: 2, ref: "[1]" },
+    { q: "An 'agency' is a place where...", a: ["People go to sleep", "They help people get something done", "People buy groceries"], c: 1, ref: "[2, 3]" },
+    { q: "A 'business' is a place ready to...", a: ["Work, buy, or sell", "Take a nap", "Play hide and seek"], c: 0, ref: "[2, 3]" },
+    { q: "If you speak 'confidently', you are...", a: ["Shy and quiet", "Sure you will do it well", "Angry"], c: 1, ref: "[2, 3]" },
+    { q: "Doing something 'eagerly' means you...", a: ["Really want to do it", "Are forced to do it", "Are bored"], c: 0, ref: "[2, 3]" },
+    { q: "When water 'seeps', it...", a: ["Jumps high", "Passes slowly through a small opening", "Freezes instantly"], c: 1, ref: "[2, 3]" },
+    { q: "What does 'in charge' mean?", a: ["Being the youngest", "Being responsible for making things happen correctly", "Being a customer"], c: 1, ref: "[1]" },
+
+    // Drama [3, 4]
+    { q: "What is 'dialogue' in a play?", a: ["The costumes", "The words the characters speak", "The music"], c: 1, ref: "[3, 4]" },
+    { q: "The 'cast' of a drama is...", a: ["The list of characters", "The ending of the story", "The stage lights"], c: 0, ref: "[3, 4]" },
+    { q: "The 'setting' tells us...", a: ["Who is speaking", "When and where the drama takes place", "What to wear"], c: 1, ref: "[3, 4]" },
+    { q: "What do 'stage directions' do?", a: ["Tell performers what to do", "List the character's favorite foods", "Check the spelling"], c: 0, ref: "[3, 4]" },
+    { q: "A new 'scene' usually starts when...", a: ["The audience claps", "The setting changes", "A character coughs"], c: 1, ref: "[4]" },
+
+    // Science [5, 6]
+    { q: "When we splash in a puddle, water is a...", a: ["Solid", "Liquid", "Gas"], c: 1, ref: "[5]" },
+    { q: "If you freeze water, it turns into a...", a: ["Solid (Ice)", "Liquid", "Gas"], c: 0, ref: "[5]" },
+    { q: "Steam seeping from a kettle is a...", a: ["Liquid", "Solid", "Gas"], c: 2, ref: "[5, 6]" },
+    { q: "What is 'evaporation'?", a: ["Water turning into a solid", "Water turning into a gas and going into the air", "Water turning blue"], c: 1, ref: "[6]" },
+    { q: "Does a 'gas' have a fixed shape or size?", a: ["Yes", "No", "Only in winter"], c: 1, ref: "[6]" },
+
+    // Grammar [7, 8]
+    { q: "To show an action happened in the past, we usually add...", a: ["-ing", "-ed", "-s"], c: 1, ref: "[7, 8]" },
+    { q: "What is the past tense of 'walk'?", a: ["Walking", "Walks", "Walked"], c: 2, ref: "[7, 8]" },
+    { q: "What word do we use to show the future tense?", a: ["Was", "Will", "Did"], c: 1, ref: "[7]" },
+    { q: "Which is future tense?", a: ["I will eat lunch.", "I ate lunch.", "I eat lunch."], c: 0, ref: "[7]" },
+    { q: "If the subject is 'He', what is the present tense of 'run'?", a: ["Runned", "Running", "Runs"], c: 2, ref: "[8]" },
+    { q: "If a verb ends in -sh (like 'wash'), we add ____ for present tense.", a: ["-s", "-es", "-ed"], c: 1, ref: "[8]" },
+    { q: "'The man walked.' This action happened in the...", a: ["Present", "Past", "Future"], c: 1, ref: "[8]" },
+    { q: "Which is a present tense verb for 'It'?", a: ["Buzzes", "Buzzed", "Will buzz"], c: 0, ref: "[8]" },
+    { q: "Action verbs tell us...", a: ["What someone or something does", "The color of a shirt", "A person's name"], c: 0, ref: "[8]" },
+
+    // Reading & Cooperation [9, 10]
+    { q: "The 'central idea' is...", a: ["A list of words", "The most important idea in a text", "The author's name"], c: 1, ref: "[10]" },
+    { q: "What are 'key details'?", a: ["Facts or examples that support the central idea", "The page numbers", "Small pictures"], c: 0, ref: "[10]" },
+    { q: "What is a 'topic'?", a: ["A very long story", "What a text is about in one or two words", "The table of contents"], c: 1, ref: "[10]" },
+    { q: "According to 'Cooperating Birds', how do you resolve conflicts?", a: ["By shouting", "By working together", "By hiding"], c: 1, ref: "[9]" },
+    { q: "Which of these is part of teamwork?", a: ["Listening", "Ignoring", "Fighting"], c: 0, ref: "[9]" },
+    { q: "To be a good friend, you should...", a: ["Only help yourself", "Help others in need", "Always be in charge"], c: 1, ref: "[9]" }
+];
+
+function renderQuiz() {
+    const container = document.getElementById('quiz-content');
+    questions.forEach((item, index) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question-card';
+        qDiv.innerHTML = `
+            <span class="question-text">${index + 1}. ${item.q}</span>
+            <div class="options" id="q${index}">
+                ${item.a.map((opt, i) => `
+                    <button class="option-btn" onclick="checkAnswer(${index}, ${i}, this)">${opt}</button>
+                `).join('')}
+            </div>
+            <span class="citation">Source: ${item.ref}</span>
+        `;
+        container.appendChild(qDiv);
+    });
+}
+
+let score = 0;
+let answeredCount = 0;
+
+function checkAnswer(qIdx, choiceIdx, btn) {
+    const parent = document.getElementById(`q${qIdx}`);
+    const buttons = parent.getElementsByClassName('option-btn');
+    
+    // 防止重複點擊
+    if (parent.dataset.answered === "true") return;
+    parent.dataset.answered = "true";
+    answeredCount++;
+
+    if (choiceIdx === questions[qIdx].c) {
+        btn.classList.add('correct');
+        score++;
+    } else {
+        btn.classList.add('wrong');
+        buttons[questions[qIdx].c].classList.add('correct');
+    }
+}
+
+function calculateScore() {
+    document.getElementById('check-btn').style.display = 'none';
+    const resultBox = document.getElementById('score-result');
+    const scoreText = document.getElementById('score-text');
+    resultBox.style.display = 'block';
+    scoreText.innerText = `You got ${score} out of ${questions.length}!`;
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+renderQuiz();
+</script>
+
+</body>
+</html>

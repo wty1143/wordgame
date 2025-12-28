@@ -61,12 +61,27 @@ def make_plural_words_set(name, words_set):
     content += f'{"}"};'
     return content
 
+def make_definition_words_set(name, words_set):
+    return make_plural_words_set(name, words_set)
+
 lessons = get_lessons()
 
 word_js = ''
 for lesson in lessons:
     if lesson.startswith('plural'):
         content = download_image(lesson, False, make_plural_words_set)
+    elif lesson.startswith('definition'):
+        words_set = {}
+        with open(lessons[lesson]) as f:
+            lines = f.read().splitlines()
+        for line in lines:
+            if not line: continue
+            if line.startswith('#'): continue
+            assert len(line.split(',')) >= 4
+            w = ','.join(line.split(',')[:-3])
+            words_set[w] = ' '.join(line.split(',')[-3:]).strip()
+            assert len(words_set)==4, words_set
+        content = make_definition_words_set(lesson, words_set)
     else:
         content = download_image(lesson, True, make_default_words_set)
 
@@ -76,6 +91,9 @@ word_js += 'const words = {\n'
 for lesson in lessons:
     if lesson.startswith('plural'):
         lesson_data = '{'+'"type": "plural", "words": {lesson}'.format(lesson=lesson) + '}'
+        word_js += f'"{lesson}": {lesson_data},\n'
+    elif lesson.startswith('definition'):
+        lesson_data = '{'+'"type": "definition", "words": {lesson}'.format(lesson=lesson) + '}'
         word_js += f'"{lesson}": {lesson_data},\n'
     else:
         word_js += f'"{lesson}": {lesson},\n'

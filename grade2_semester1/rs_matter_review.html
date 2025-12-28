@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter Final Exam - English Version</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f9fc; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 700px; width: 100%; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 5px; }
+        .sub-title { text-align: center; color: #7f8c8d; margin-bottom: 25px; font-style: italic; }
+        .progress-bar { width: 100%; background: #eee; height: 12px; border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+        #progress-fill { height: 100%; background: #3498db; width: 0%; transition: width 0.4s; }
+        .question { font-size: 1.3rem; margin-bottom: 25px; line-height: 1.4; color: #34495e; font-weight: 600; }
+        .options { display: grid; gap: 15px; }
+        button.opt { padding: 18px; font-size: 1.1rem; border: 2px solid #dcdde1; border-radius: 10px; background: #fff; cursor: pointer; transition: 0.2s; text-align: left; }
+        button.opt:hover { background: #f1f2f6; border-color: #3498db; }
+        button.correct { background: #2ecc71 !important; color: white; border-color: #27ae60; }
+        button.wrong { background: #e74c3c !important; color: white; border-color: #c0392b; }
+        .evidence-box { background: #fff9c4; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #f1c40f; display: none; font-size: 0.95rem; }
+        #next-btn { display: none; margin: 30px auto 0; padding: 12px 50px; background: #2c3e50; color: white; border: none; border-radius: 25px; font-size: 1.1rem; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔬 Matter & Changes</h1>
+    <div class="sub-title">Ace Detective Final Training (35 Questions)</div>
+    
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+    <div id="status" style="margin-bottom: 10px; font-weight: bold; color: #7f8c8d;"></div>
+
+    <div id="game-area">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <div class="evidence-box" id="evidence-box"></div>
+        <button id="next-btn">Next Question ➡️</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // --- Genre & Informational Text ---
+    { q: "What is the genre of 'Many Kinds of Matter'?", a: ["Fairy Tale", "Informational Text", "Poetry"], c: 1, e: "Informational text is nonfiction. It gives facts about a topic. [cite: 124, 125]" },
+    { q: "What do captions do in an informational text?", a: ["They tell funny jokes.", "They work with photos to help you understand.", "They are the names of characters."], c: 1, e: "Captions with art or photos help you understand the text. [cite: 126, 128]" },
+    { q: "Informational text is ______.", a: ["Nonfiction (Facts)", "Fiction (Make-believe)", "A scary story"], c: 0, e: "Informational text is nonfiction. " },
+    { q: "A 'Genre Study' helps you look for ______.", a: ["The ending of the story", "Specific features like photographs and captions", "The main character's age"], c: 1, e: "Look for captions, photographs, and visuals. [cite: 125-127]" },
+    { q: "When you make an 'inference', you ______.", a: ["Read very fast", "Make a smart guess using clues", "Draw a picture"], c: 1, e: "Read to make smart guesses, or inferences. [cite: 132]" },
+
+    // --- Matter Definitions ---
+    { q: "What is matter?", a: ["Anything that has mass and volume", "Only things you can eat", "Anything that is blue"], c: 0, e: "Matter is anything that has mass and volume. " },
+    { q: "Where can you find matter?", a: ["Only in school", "Everywhere", "Only in the water"], c: 1, e: "Matter is everywhere. " },
+    { q: "What is 'Mass'?", a: ["The amount of space an object takes up", "The amount of material in an object", "The shape of an object"], c: 1, e: "Mass is the amount of material in an object. " },
+    { q: "What is 'Volume'?", a: ["The amount of space an object takes up", "How loud something is", "The material in an object"], c: 0, e: "Volume is the amount of space an object takes up. " },
+    { q: "Are people made of matter?", a: ["No, only trees are matter", "Yes, because people have mass and volume", "No, people are too big"], c: 1, e: "Trees, lakes, and people are matter. All have mass and volume. [cite: 4]" },
+
+    // --- Solids ---
+    { q: "Does solid matter hold its own shape?", a: ["No, it takes the shape of the container", "Yes, it holds its own shape", "Only if it is in a jar"], c: 1, e: "Solid matter holds its own shape. [cite: 106]" },
+    { q: "Can you easily compress (squeeze) a solid?", a: ["Yes, easily", "No, solids are not easy to compress", "Only if it is a book"], c: 1, e: "Solids are not easy to compress. " },
+    { q: "Do marbles change shape when you put them in a jar?", a: ["Yes, they become square", "No, they are still round", "They turn into liquid"], c: 1, e: "Marbles fill a jar. But the marbles are still round. [cite: 106, 107]" },
+    { q: "Do solids flow?", a: ["No, solids do not flow", "Yes, like water", "Only candy sprinkles flow"], c: 0, e: "Solids do not flow. [cite: 95]" },
+    { q: "Which are examples of solids?", a: ["Milk and water", "Books, rocks, and toys", "Steam and breath"], c: 1, e: "Books, rocks, and toys are solids. [cite: 105]" },
+
+    // --- Liquids ---
+    { q: "Do liquids hold their own shape?", a: ["Yes, always", "No, they take the shape of their container", "Only syrup does"], c: 1, e: "Liquid matter does not hold its own shape. They take the shape of their container. [cite: 89, 90]" },
+    { q: "Are liquids easy to compress?", a: ["Yes, very easy", "No, liquids are not easy to compress", "Only milk is easy"], c: 1, e: "Liquids are not easy to compress. [cite: 79]" },
+    { q: "What happens when you pour syrup on pancakes?", a: ["It stays in a cube shape", "It spreads across the pancakes", "It turns into a gas"], c: 1, e: "Liquids flow. Liquid syrup spreads across pancakes. [cite: 86]" },
+    { q: "Which are examples of liquids?", a: ["Oil, syrup, and water", "Rocks and toys", "Air and steam"], c: 0, e: "Oil, syrup, and water are liquids. [cite: 88]" },
+    { q: "If you put water in a square pool, what shape does it take?", a: ["A round shape", "A square shape", "It has no shape"], c: 1, e: "Water in a square pool takes on a square shape. [cite: 93]" },
+
+    // --- Gases ---
+    { q: "Do gases hold their own shape?", a: ["Yes, always", "No, they take the shape of their container", "Only breath does"], c: 1, e: "Gases take the shape of their container. [cite: 73]" },
+    { q: "What happens to the air inside a bubble?", a: ["It stays at the bottom", "It spreads to fill the space", "It turns into liquid"], c: 1, e: "The air inside a bubble spreads to fill the space. [cite: 56]" },
+    { q: "Are gases easy to compress?", a: ["No, very hard", "Yes, gases are easy to compress", "Only steam is easy"], c: 1, e: "Gases are easy to compress. [cite: 61]" },
+    { q: "Which are examples of gases?", a: ["Milk and oil", "Air, steam, and your breath", "Candy and sprinkles"], c: 1, e: "Air, steam, and your breath are gases. [cite: 67]" },
+    { q: "What happens to carbon dioxide in a soda can?", a: ["It is a solid", "It is squeezed (compressed) into the can", "It turns into ice"], c: 1, e: "Carbon dioxide is a gas... It's squeezed into the cans to give the soda bubbles. [cite: 61, 62]" },
+
+    // --- Changes of State ---
+    { q: "Can matter change from one kind to another?", a: ["Yes, it can change forms", "No, it stays the same", "Only if it's hot"], c: 0, e: "Matter can change from one kind to another. [cite: 49]" },
+    { q: "What happens when juice is cooled?", a: ["It becomes a gas", "It turns into a solid (ice pop)", "It stays a liquid"], c: 1, e: "Juice is a liquid. It freezes when it gets cold. It changes to a solid. [cite: 7, 8]" },
+    { q: "What happens to cheese when it gets hot?", a: ["It freezes", "It melts into a liquid", "It becomes steam"], c: 1, e: "Cheese is a solid. It melts when it gets hot. It changes to a liquid. [cite: 10, 11]" },
+    { q: "At what temperature does water freeze?", a: ["212°F (100°C)", "32°F (0°C)", "50°F"], c: 1, e: "Water freezes when it reaches 32°F (0°C). [cite: 37, 38]" },
+    { q: "At what temperature does water boil?", a: ["212°F (100°C)", "32°F (0°C)", "100°F"], c: 0, e: "Water boils when it reaches 212°F (100°C). [cite: 44-46]" },
+    { q: "What is water called when it is a gas?", a: ["Ice", "Water vapor / Steam", "Liquid"], c: 1, e: "Water vapor is a gas. [cite: 22, 41]" },
+    { q: "What is the process of water turning into gas called?", a: ["Condensation", "Evaporation", "Melting"], c: 1, e: "This change is called evaporation. " },
+    { q: "What is 'condensation'?", a: ["Water turning into ice", "Water vapor changing back into liquid", "Water boiling"], c: 1, e: "Water vapor changes back into liquid water when it cools... called condensation. [cite: 14-16]" },
+    { q: "Where can you see condensation?", a: ["On a frozen lake", "On a shower door after a hot shower", "In a boiling kettle"], c: 1, e: "You can see condensation after a hot shower. [cite: 17, 18]" },
+    { q: "How do dishes dry on a rack?", a: ["They melt", "The water evaporates", "The water turns to ice"], c: 1, e: "The dishes dry after the water evaporates. [cite: 29-31]" }
+];
+
+let shuffleQ = [];
+let current = 0;
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function init() {
+    shuffleQ = [...quizData];
+    shuffle(shuffleQ);
+    current = 0;
+    render();
+}
+
+function render() {
+    const q = shuffleQ[current];
+    document.getElementById("status").innerText = `Progress: ${current + 1} / 35`;
+    document.getElementById("progress-fill").style.width = `${((current) / 35) * 100}%`;
+    document.getElementById("question").innerText = q.q;
+    document.getElementById("evidence-box").style.display = "none";
+    document.getElementById("next-btn").style.display = "none";
+    
+    const opts = document.getElementById("options");
+    opts.innerHTML = "";
+    q.a.forEach((text, i) => {
+        const btn = document.createElement("button");
+        btn.className = "opt";
+        btn.innerText = text;
+        btn.onclick = () => check(i);
+        opts.appendChild(btn);
+    });
+}
+
+function check(idx) {
+    const q = shuffleQ[current];
+    const btns = document.querySelectorAll(".opt");
+    
+    if (idx === q.c) {
+        btns[idx].classList.add("correct");
+    } else {
+        btns[idx].classList.add("wrong");
+        btns[q.c].classList.add("correct");
+    }
+    
+    btns.forEach(b => b.disabled = true);
+    
+    const evidence = document.getElementById("evidence-box");
+    evidence.style.display = "block";
+    evidence.innerHTML = `<strong>📖 Text Evidence (中文提示):</strong><br>${q.e}`;
+    
+    document.getElementById("next-btn").style.display = "block";
+}
+
+document.getElementById("next-btn").onclick = () => {
+    current++;
+    if (current < 35) {
+        render();
+    } else {
+        document.getElementById("progress-fill").style.width = "100%";
+        document.getElementById("game-area").innerHTML = `<div style='text-align:center;'><h2>🏆 Training Complete!</h2><p>You have mastered the science of Matter. Good luck on your final exam!</p><button onclick='location.reload()' style='padding:15px 40px; border-radius:30px; border:none; background:#2ecc71; color:white; cursor:pointer; font-weight:bold;'>Restart Challenge</button></div>`;
+    }
+};
+
+init();
+</script>
+
+</body>
+</html>

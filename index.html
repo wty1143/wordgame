@@ -71,8 +71,12 @@
     <div id="game-container">
         <center>
             <div class="digits"></div>
-            <div>
+            <div id="img">
                 <img src="img/{{word}}.png">
+            </div>
+
+            <div ng-hide="question_mark">
+                <img src="img/know.png">
             </div>
             
             <div class="clue-container">
