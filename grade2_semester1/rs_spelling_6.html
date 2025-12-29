@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyson's Spelling Challenge with Images (List 6)</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft JhengHei', sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 1.8rem;}
+        .score-board { font-size: 1.1rem; color: #7f8c8d; margin-bottom: 20px; }
+        
+        .card {
+            background: #e8f4f8;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 3px solid #3498db;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 新增圖片樣式 */
+        #word-image {
+            max-width: 100%;
+            height: 250px; /* 固定高度，避免版面跳動 */
+            object-fit: cover; /* 保持圖片比例填滿 */
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            display: none; /* 預設隱藏，讀取成功才顯示 */
+            background-color: #ddd; /* 讀取中的背景色 */
+        }
+
+        .chinese-hint {
+            font-size: 2.2rem;
+            color: #2980b9;
+            font-weight: bold;
+            margin-bottom: 15px;
+            min-height: 50px;
+        }
+
+        .input-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .input-area input {
+            font-size: 2rem;
+            padding: 10px;
+            width: 80%;
+            text-align: center;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            outline: none;
+            letter-spacing: 2px;
+        }
+        .input-area input:focus { border-color: #3498db; }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn {
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            font-family: inherit;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-submit { background-color: #2ecc71; color: white; font-size: 1.5rem; padding: 15px 40px;}
+        .btn-submit:hover { background-color: #27ae60; }
+        .btn-speak { background-color: #f39c12; color: white;}
+        .btn-speak:hover { background-color: #e67e22; }
+        .btn-skip { background-color: #95a5a6; color: white; font-size: 1rem;}
+        .btn-skip:hover { background-color: #7f8c8d; }
+
+        .message {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 40px;
+        }
+        .correct { color: #27ae60; }
+        .wrong { color: #c0392b; }
+
+        .progress-container {
+            width: 100%;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 12px;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✨ Tyson's Spelling Challenge ✨</h1>
+        <div class="score-board">
+            進度: <span id="current-pos">0</span>/<span id="total-count">0</span> | 分數: <span id="score">0</span>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+
+        <div class="card">
+            <img id="word-image" src="" alt="單字圖片">
+
+            <div class="chinese-hint" id="chinese-word">準備好了嗎？</div>
+            
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="輸入英文..." autocomplete="off">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-speak" onclick="speakWord()">🔊 聽發音 (Hint)</button>
+             </div>
+        </div>
+
+        <div class="message" id="message-area"></div>
+
+        <div class="btn-group">
+            <button class="btn btn-submit" onclick="checkAnswer()">送出答案 (Enter)</button>
+            <button class="btn btn-skip" onclick="showAnswer()">😅 偷看答案</button>
+        </div>
+    </div>
+
+    <script>
+        // 單字表
+        const allWords = [
+            // High Frequency Words
+            { word: "baby", meaning: "嬰兒" },
+            { word: "bird", meaning: "鳥" },
+            { word: "blue", meaning: "藍色" },
+            { word: "bring", meaning: "帶來" },
+            { word: "fly", meaning: "飛" },
+            { word: "her", meaning: "她的" },
+            { word: "little", meaning: "小的" },
+            { word: "place", meaning: "地方" },
+            { word: "she", meaning: "她" },
+            { word: "this", meaning: "這個" },
+            // Beginning Blends
+            { word: "space", meaning: "空間 / 太空" },
+            { word: "globe", meaning: "地球儀" },
+            { word: "grade", meaning: "年級 / 成績" },
+            { word: "swim", meaning: "游泳" },
+            { word: "last", meaning: "最後的" },
+            { word: "test", meaning: "考試" },
+            { word: "skin", meaning: "皮膚" },
+            { word: "drag", meaning: "拖 / 拉" },
+            { word: "glide", meaning: "滑翔" },
+            { word: "just", meaning: "剛好 / 只是" },
+            { word: "stove", meaning: "爐子" },
+            // Review Words
+            { word: "slid", meaning: "滑 (slide過去式)" },
+            { word: "close", meaning: "關上 / 靠近" },
+            { word: "grape", meaning: "葡萄" },
+            { word: "plate", meaning: "盤子" },
+            // Challenge Words
+            { word: "climb", meaning: "攀爬" },
+            { word: "bruise", meaning: "瘀青" }
+        ];
+
+        let currentWords = [];
+        let currentIndex = 0;
+        let score = 0;
+        let currentWordObj = null;
+        const imgElement = document.getElementById('word-image');
+        const userInput = document.getElementById('user-input');
+        const messageArea = document.getElementById('message-area');
+
+        function initGame() {
+            currentWords = [...allWords].sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            score = 0;
+            document.getElementById('total-count').innerText = currentWords.length;
+            updateScoreBoard();
+            loadWord();
+        }
+
+        function loadWord() {
+            if (currentIndex >= currentWords.length) {
+                gameFinished();
+                return;
+            }
+
+            currentWordObj = currentWords[currentIndex];
+            document.getElementById('chinese-word').innerText = currentWordObj.meaning;
+            userInput.value = '';
+            messageArea.innerText = '';
+            userInput.focus();
+            
+            updateScoreBoard();
+
+            // --- 圖片處理核心邏輯 ---
+            // 先隱藏舊圖片，避免顯示上一張圖
+            imgElement.style.display = 'none';
+            
+            // 設定圖片來源為 Unsplash 的自動搜尋 API
+            // 格式: https://source.unsplash.com/特徵/寬x高/?關鍵字
+            const cleanWord = currentWordObj.word.replace(/ /g, '+'); // 處理空格
+            imgElement.src = `https://source.unsplash.com/400x300/?${cleanWord}`;
+            
+            // 圖片讀取成功時執行
+            imgElement.onload = function() {
+                // 只有當成功讀取到圖片時才顯示
+                this.style.display = 'block';
+            };
+
+            // 圖片讀取失敗時執行 (例如找不到圖，或網路問題)
+            imgElement.onerror = function() {
+                 // 確保隱藏破圖示
+                this.style.display = 'none';
+                console.log("無法載入圖片: " + currentWordObj.word);
+            };
+            // -----------------------
+        }
+
+        function speakWord() {
+            if (!currentWordObj) return;
+            // 先停止之前的發音
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(currentWordObj.word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85; 
+            window.speechSynthesis.speak(utterance);
+            userInput.focus();
+        }
+
+        function checkAnswer() {
+            const userValue = userInput.value.trim().toLowerCase();
+            const correctWord = currentWordObj.word.toLowerCase();
+
+            if (userValue === correctWord) {
+                messageArea.innerHTML = "<span class='correct'>🎉 That's correct!</span>";
+                score += 10;
+                // 答對時特效：讓輸入框閃一下綠色
+                userInput.style.borderColor = "#2ecc71";
+                setTimeout(() => { userInput.style.borderColor = "#bdc3c7"; }, 500);
+
+                setTimeout(() => {
+                    currentIndex++;
+                    loadWord();
+                }, 1200);
+            } else {
+                messageArea.innerHTML = "<span class='wrong'>❌ Try again! Listen carefully.</span>";
+                speakWord(); 
+                userInput.value = '';
+                // 答錯時特效：讓輸入框搖晃一下 (簡單版，閃紅色)
+                userInput.style.borderColor = "#c0392b";
+                setTimeout(() => { userInput.style.borderColor = "#bdc3c7"; }, 500);
+                userInput.focus();
+            }
+            updateScoreBoard();
+        }
+
+        function showAnswer() {
+             messageArea.innerHTML = `<span class='wrong' style='color:#d35400'>Answer: <strong>${currentWordObj.word}</strong></span>`;
+             speakWord();
+             setTimeout(() => {
+                currentIndex++;
+                loadWord();
+             }, 2500);
+        }
+
+        function updateScoreBoard() {
+            document.getElementById('score').innerText = score;
+            document.getElementById('current-pos').innerText = currentIndex + 1;
+            let progress = ((currentIndex) / currentWords.length) * 100;
+            if (currentIndex === currentWords.length) progress = 100;
+            document.getElementById('progress').style.width = progress + "%";
+        }
+
+        function gameFinished() {
+             // 隱藏遊戲介面元素
+            document.querySelector('.card').style.display = 'none';
+            document.querySelector('.btn-group').style.display = 'none';
+            document.getElementById('message-area').style.display = 'none';
+
+            let finalMessage = score === currentWords.length * 10 ? "🌟 Perfect Score! You are amazing! 🌟" : "Great job practicing!";
+            
+            document.querySelector('.container').insertAdjacentHTML('beforeend', `
+                <div style="margin-top: 30px;">
+                    <h2 style="color: #27ae60; font-size: 2.5rem;">${finalMessage}</h2>
+                    <p style="font-size: 1.5rem;">Total Score: ${score}</p>
+                    <button class="btn btn-submit" onclick="location.reload()" style="margin-top: 20px;">🔄 Play Again</button>
+                </div>
+            `);
+             // 將進度條填滿
+             document.getElementById('progress').style.width = "100%";
+        }
+
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // 初始化
+        initGame();
+
+    </script>
+</body>
+</html>
