@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force Master Training Camp 🚀</title>
+    <style>
+        :root {
+            --bg-color: #e0f7fa;
+            --card-bg: #ffffff;
+            --primary-color: #00bcd4; /* Science Blue */
+            --accent-color: #ff9800; /* Energy Orange */
+            --text-color: #37474f;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        #game-wrapper {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 700px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border: 4px solid var(--primary-color);
+            position: relative;
+        }
+
+        /* Header & Progress */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #progress-container {
+            width: 100%;
+            height: 12px;
+            background-color: #eceff1;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            transition: width 0.4s ease;
+        }
+
+        /* Visual Scene */
+        #scene-area {
+            text-align: center;
+            background-color: #f1f8e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #aed581;
+        }
+
+        #scene-emoji {
+            font-size: 80px;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        #question-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        /* Choices */
+        #options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 0 #0097a7;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+            background-color: #26c6da;
+        }
+
+        .option-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        /* Feedback Styles */
+        .correct { background-color: var(--success) !important; box-shadow: 0 4px 0 #2e7d32 !important; }
+        .wrong { background-color: var(--error) !important; box-shadow: 0 4px 0 #c62828 !important; animation: shake 0.4s; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        /* Report Mode (Fill in the blank) */
+        .blank-slot {
+            display: inline-block;
+            border-bottom: 3px solid var(--accent-color);
+            min-width: 60px;
+            color: var(--accent-color);
+            text-align: center;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+        
+        #next-btn {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <header>
+        <h1>⚛️ Force Master Training ⚛️</h1>
+        <div id="progress-container"><div id="progress-bar"></div></div>
+    </header>
+
+    <div id="scene-area">
+        <div id="scene-emoji">👋</div>
+        <div id="question-text">Loading training modules...</div>
+    </div>
+
+    <div id="options-grid">
+        </div>
+
+    <button id="next-btn" onclick="nextLevel()">Next Mission ➡️</button>
+</div>
+
+<script>
+    // === 遊戲題庫 (Based on uploaded worksheets) ===
+    const gameData = [
+        // --- Level 1: Basics (Push vs Pull) ---
+        {
+            type: "choice",
+            emoji: "🤔",
+            question: "What is a **Force**?",
+            options: ["A kind of magic", "A push or a pull", "A shape", "Gravity only"],
+            answer: "A push or a pull",
+            feedback: "Correct! Force is a push or a pull."
+        },
+        {
+            type: "choice",
+            emoji: "👉 📦",
+            question: "When you **Push** something, it moves _______.",
+            options: ["away from you", "towards you", "up", "down"],
+            answer: "away from you",
+            feedback: "Yes! Push moves things AWAY."
+        },
+        {
+            type: "choice",
+            emoji: "🪢 🧍‍♂️",
+            question: "When you **Pull** a rope, it moves _______.",
+            options: ["away from you", "towards you", "sideways", "nowhere"],
+            answer: "towards you",
+            feedback: "Correct! Pull moves things CLOSER (towards you)."
+        },
+        
+        // --- Level 2: Movement Effects ---
+        {
+            type: "choice",
+            emoji: "🛑",
+            question: "What do we call an object that is **NOT moving**?",
+            options: ["Fast", "Stationary", "Forceful", "Bending"],
+            answer: "Stationary",
+            feedback: "Great! Stationary means NOT moving."
+        },
+        {
+            type: "choice",
+            emoji: "🚴💨",
+            question: "If you pedal your bike harder, you will _______.",
+            options: ["stop", "slow down", "speed up", "change shape"],
+            answer: "speed up",
+            feedback: "Correct! More force makes it speed up."
+        },
+        {
+            type: "choice",
+            emoji: "⚾️ 🏏",
+            question: "When you hit a moving ball with a bat, it changes _______.",
+            options: ["color", "direction", "weight", "size"],
+            answer: "direction",
+            feedback: "Yes! A force can change the direction of an object."
+        },
+        {
+            type: "choice",
+            emoji: "💪",
+            question: "A **Stronger** force causes a _______ change in movement.",
+            options: ["smaller", "bigger", "tiny", "zero"],
+            answer: "bigger",
+            feedback: "Right! Stronger force = Bigger change."
+        },
+
+        // --- Level 3: Changing Shape ---
+        {
+            type: "choice",
+            emoji: "🍞",
+            question: "Which material changes shape **EASILY**?",
+            options: ["Metal spoon", "Wooden chair", "Modelling clay", "Pencil"],
+            answer: "Modelling clay",
+            feedback: "Correct! Clay, socks, and bread change shape easily."
+        },
+        {
+            type: "choice",
+            emoji: "🥄",
+            question: "Which material does **NOT** change shape easily?",
+            options: ["Sponge", "Metal spoon", "Balloon", "Dough"],
+            answer: "Metal spoon",
+            feedback: "Correct! Metal is hard and strong."
+        },
+        {
+            type: "choice",
+            emoji: "🦷",
+            question: "To get toothpaste out, you must ______ the tube.",
+            options: ["twist", "squeeze", "stretch", "bend"],
+            answer: "squeeze",
+            feedback: "Squeeze (press together) is right!"
+        },
+
+        // --- Level 4: Final Lab Report (Fill in the blanks) ---
+        {
+            type: "cloze",
+            emoji: "📝",
+            question: "Final Exam: Complete the Science sentences.",
+            // 這裡把整個句子拆解，用 [ ] 包住答案
+            text: "A force is a [push] or a [pull]. A force can make an object [speed] up, [slow] down, or [stop]. We can use our hands to [bend], [twist], or [stretch] things to change their [shape].",
+            words: ["push", "pull", "speed", "slow", "stop", "bend", "twist", "stretch", "shape"], // Button pool
+            answers: ["push", "pull", "speed", "slow", "stop", "bend", "twist", "stretch", "shape"] // Correct order/matches
+        }
+    ];
+
+    let currentLevel = 0;
+    let score = 0;
+    let clozeState = []; // For the final level
+
+    function initGame() {
+        currentLevel = 0;
+        renderLevel();
+    }
+
+    function renderLevel() {
+        const data = gameData[currentLevel];
+        const sceneEmoji = document.getElementById('scene-emoji');
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const progressBar = document.getElementById('progress-bar');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Reset UI
+        nextBtn.style.display = 'none';
+        optionsGrid.innerHTML = '';
+        progressBar.style.width = `${(currentLevel / gameData.length) * 100}%`;
+
+        // Set Content
+        sceneEmoji.innerText = data.emoji;
+
+        if (data.type === 'choice') {
+            // 一般選擇題
+            questionText.innerHTML = data.question;
+            
+            // Randomize options just for display
+            let shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkChoice(btn, opt, data);
+                optionsGrid.appendChild(btn);
+            });
+
+        } else if (data.type === 'cloze') {
+            // 填空題 (Final Boss)
+            questionText.innerHTML = "Fill in the blanks:<br><br>";
+            
+            // Generate Text with Blanks
+            let processedText = data.text;
+            let slotIndex = 0;
+            // 用正則表達式把 [word] 換成 ____
+            processedText = processedText.replace(/\[(.*?)\]/g, () => {
+                return `<span id="slot-${slotIndex++}" class="blank-slot">____</span>`;
+            });
+            questionText.innerHTML += processedText;
+
+            // Reset Cloze State
+            clozeState = new Array(data.answers.length).fill(null);
+
+            // Generate Buttons
+            let shuffledWords = [...data.words].sort(() => Math.random() - 0.5);
+            shuffledWords.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = word;
+                btn.onclick = () => checkCloze(btn, word, data);
+                optionsGrid.appendChild(btn);
+            });
+        }
+    }
+
+    function checkChoice(btn, selected, data) {
+        // Prevent multiple clicks
+        const allBtns = document.querySelectorAll('.option-btn');
+        
+        if (selected === data.answer) {
+            btn.classList.add('correct');
+            document.getElementById('question-text').innerHTML += `<br><br><span style="color:#2e7d32">${data.feedback}</span>`;
+            document.getElementById('next-btn').style.display = 'block';
+            playAudio('correct');
+            
+            // Disable all buttons
+            allBtns.forEach(b => b.disabled = true);
+        } else {
+            btn.classList.add('wrong');
+            playAudio('wrong');
+            setTimeout(() => btn.classList.remove('wrong'), 500);
+        }
+    }
+
+    function checkCloze(btn, selected, data) {
+        // Find first empty slot
+        const emptyIndex = clozeState.findIndex(val => val === null);
+        if (emptyIndex === -1) return; // Full
+
+        const correctWord = data.answers[emptyIndex];
+
+        // 簡單邏輯：只要選對這個格子的字就算對 (忽略順序問題，假設題目設計為唯一解或邏輯順序)
+        // 但為了嚴謹，這裡比對的是題目設定的標準答案順序
+        
+        if (selected === correctWord) {
+            // Correct
+            const slot = document.getElementById(`slot-${emptyIndex}`);
+            slot.innerText = selected;
+            slot.style.color = "#4caf50";
+            clozeState[emptyIndex] = selected;
+            
+            btn.style.visibility = 'hidden'; // Hide used button
+            playAudio('correct');
+
+            // Check if all done
+            if (!clozeState.includes(null)) {
+                document.getElementById('next-btn').style.display = 'block';
+                document.getElementById('question-text').innerHTML += `<br><br><span style="color:#2e7d32">Excellent! Report Complete!</span>`;
+            }
+        } else {
+            // Wrong
+            btn.classList.add('wrong');
+            playAudio('wrong');
+            setTimeout(() => btn.classList.remove('wrong'), 500);
+        }
+    }
+
+    function nextLevel() {
+        currentLevel++;
+        if (currentLevel < gameData.length) {
+            renderLevel();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        document.getElementById('game-wrapper').innerHTML = `
+            <header><h1>🎉 Mission Accomplished! 🎉</h1></header>
+            <div id="scene-area">
+                <div id="scene-emoji">🏆</div>
+                <h2>You are now a Force Master!</h2>
+                <p>You know all about Push, Pull, Movement, and Shapes!</p>
+            </div>
+            <button class="option-btn full-width" onclick="location.reload()">Play Again (Review)</button>
+        `;
+    }
+
+    // Dummy audio function (Browsers block auto-play, so we keep it simple or visual only)
+    function playAudio(type) {
+        // In a real app, use new Audio('path.mp3').play();
+        console.log(type); 
+    }
+
+    // Start
+    initGame();
+
+</script>
+
+</body>
+</html>

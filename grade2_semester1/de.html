@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文期中考大挑戰 - Unit 3 & 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+        }
+
+        .game-font {
+            font-family: 'Luckiest Guy', cursive;
+        }
+
+        .card-bounce:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .correct-bg {
+            background-color: #4ade80 !important;
+        }
+
+        .wrong-bg {
+            background-color: #f87171 !important;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+<div id="game-container" class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-2xl text-center relative overflow-hidden">
+    <!-- Start Screen -->
+    <div id="start-screen" class="space-y-6 py-10">
+        <h1 class="text-5xl font-bold text-orange-600 game-font float-animation">English Challenge!</h1>
+        <p class="text-xl text-gray-600">準備好挑戰 Unit 3 & 4 的期中考了嗎？</p>
+        <div class="flex flex-col space-y-4 items-center">
+            <button onclick="startGame('vocabulary')" class="w-64 bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                🍎 單字大挑戰
+            </button>
+            <button onclick="startGame('sentence')" class="w-64 bg-blue-400 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                💬 句型大挑戰
+            </button>
+        </div>
+        <p class="text-sm text-gray-400">範圍：Food, Fruit, Dairy & Clothes</p>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="hidden space-y-6">
+        <div class="flex justify-between items-center text-sm font-bold text-gray-500 mb-4">
+            <span id="progress-text">第 1 / 10 題</span>
+            <span id="score-text">得分: 0</span>
+        </div>
+        
+        <div id="question-box" class="space-y-4">
+            <h2 id="question-title" class="text-2xl font-bold text-gray-800">這是什麼？</h2>
+            <div id="visual-cue" class="text-8xl mb-6">🍎</div>
+            <div id="options-grid" class="grid grid-cols-2 gap-4">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <div id="feedback-msg" class="h-8 font-bold text-lg"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden space-y-6 py-10">
+        <h2 class="text-4xl font-bold text-blue-600 game-font">Great Job!</h2>
+        <div class="text-6xl font-bold text-orange-500" id="final-score">80</div>
+        <p class="text-xl text-gray-600">你完成複習了！明天考試加油！</p>
+        <button onclick="resetGame()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-10 rounded-full shadow-lg text-xl transition">
+            再玩一次
+        </button>
+    </div>
+</div>
+
+<script>
+    const questions = {
+        vocabulary: [
+            { q: "What is this?", a: "Soup", options: ["Soup", "Salad", "Spaghetti", "Steak"], cue: "🥣" },
+            { q: "What is this?", a: "Apple", options: ["Apple", "Banana", "Orange", "Peach"], cue: "🍎" },
+            { q: "What is this?", a: "Dress", options: ["Shirt", "Dress", "Skirt", "Pants"], cue: "👗" },
+            { q: "What is this?", a: "Cheese", options: ["Milk", "Yogurt", "Cheese", "Butter"], cue: "🧀" },
+            { q: "What are these?", a: "Shoes", options: ["Socks", "Shoes", "Cheese", "Boots"], cue: "👟" },
+            { q: "What is this?", a: "Banana", options: ["Apple", "Banana", "Peach", "Orange"], cue: "🍌" },
+            { q: "What is this?", a: "French Fries", options: ["Steak", "Eggs", "French Fries", "Salad"], cue: "🍟" },
+            { q: "What is this?", a: "Cap", options: ["Hat", "Cap", "T-shirt", "Sweater"], cue: "🧢" },
+            { q: "What is this?", a: "Milk", options: ["Yogurt", "Butter", "Cheese", "Milk"], cue: "🥛" },
+            { q: "What is this?", a: "Coat", options: ["Sweater", "Coat", "T-shirt", "Dress"], cue: "🧥" }
+        ],
+        sentence: [
+            { q: "What ___ you want?", a: "do", options: ["do", "does", "are", "is"], cue: "🤔" },
+            { q: "He ___ steak.", a: "wants", options: ["want", "wants", "is", "having"], cue: "🥩" },
+            { q: "Do you ___ apples?", a: "have", options: ["has", "have", "wanting", "haves"], cue: "🍎" },
+            { q: "Does she ___ oranges?", a: "have", options: ["has", "have", "having", "is"], cue: "🍊" },
+            { q: "What ___ you wearing?", a: "are", options: ["is", "am", "are", "do"], cue: "👕" },
+            { q: "I'm wearing ___ red cap.", a: "a", options: ["a", "an", "two", "the"], cue: "🧢" },
+            { q: "Is he wearing a hat?", a: "Yes, he is.", options: ["Yes, he is.", "No, she isn't.", "Yes, I do.", "No, he don't."], cue: "🎩 (Yes)" },
+            { q: "What's your phone ___?", a: "number", options: ["name", "number", "address", "color"], cue: "📞" },
+            { q: "We're wearing ___.", a: "sneakers", options: ["sneakers", "a sneakers", "sneaker", "the sneaker"], cue: "👟👟" },
+            { q: "___ you like milk?", a: "Do", options: ["Do", "Does", "Are", "Is"], cue: "🥛" }
+        ]
+    };
+
+    let currentMode = 'vocabulary';
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let gameActive = false;
+
+    function startGame(mode) {
+        currentMode = mode;
+        currentQuestionIndex = 0;
+        score = 0;
+        gameActive = true;
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = questions[currentMode][currentQuestionIndex];
+        document.getElementById('progress-text').innerText = `第 ${currentQuestionIndex + 1} / ${questions[currentMode].length} 題`;
+        document.getElementById('score-text').innerText = `得分: ${score}`;
+        document.getElementById('question-title').innerText = qData.q;
+        document.getElementById('visual-cue').innerText = qData.cue;
+        document.getElementById('feedback-msg').innerText = "";
+        
+        const optionsGrid = document.getElementById('options-grid');
+        optionsGrid.innerHTML = "";
+        
+        // Shuffle options
+        const shuffledOptions = [...qData.options].sort(() => Math.random() - 0.5);
+        
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.className = "bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 px-4 rounded-2xl shadow transition transform active:scale-95 text-lg";
+            btn.onclick = () => checkAnswer(opt, btn);
+            optionsGrid.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, btn) {
+        if (!gameActive) return;
+        const qData = questions[currentMode][currentQuestionIndex];
+        const feedback = document.getElementById('feedback-msg');
+        gameActive = false;
+
+        if (selected === qData.a) {
+            score += 10;
+            btn.classList.add('correct-bg', 'text-white');
+            feedback.innerText = "答對了！Correct! ✨";
+            feedback.className = "h-8 font-bold text-lg text-green-500";
+        } else {
+            btn.classList.add('wrong-bg', 'text-white');
+            feedback.innerText = `不對喔，正確答案是: ${qData.a}`;
+            feedback.className = "h-8 font-bold text-lg text-red-500";
+        }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions[currentMode].length) {
+                gameActive = true;
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 1500);
+    }
+
+    function showResult() {
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+    }
+
+    function resetGame() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文期中考全範圍複習 - Unit 3 & 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+        }
+
+        .game-font { font-family: 'Luckiest Guy', cursive; }
+
+        .correct-bg { background-color: #4ade80 !important; color: white !important; }
+        .wrong-bg { background-color: #f87171 !important; color: white !important; }
+
+        @keyframes pulse-custom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse { animation: pulse-custom 2s infinite; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+<div id="game-container" class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-2xl text-center relative overflow-hidden border-8 border-blue-200">
+    
+    <!-- Start Screen -->
+    <div id="start-screen" class="space-y-6 py-10">
+        <h1 class="text-5xl font-bold text-blue-600 game-font pulse">Exam Master!</h1>
+        <div class="bg-blue-50 p-4 rounded-xl text-blue-700 font-bold mb-4">
+            目標：複習所有食物、衣服與文法！
+        </div>
+        <div class="flex flex-col space-y-4 items-center">
+            <button onclick="startGame('vocabulary')" class="w-72 bg-orange-400 hover:bg-orange-500 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                📚 全單字挑戰 (28個)
+            </button>
+            <button onclick="startGame('sentence')" class="w-72 bg-purple-400 hover:bg-purple-500 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                📝 必考句型挑戰
+            </button>
+        </div>
+        <p class="text-xs text-gray-400 mt-4">範圍：Unit 3 (Food/Fruit/Dairy) & Unit 4 (Clothes)</p>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="hidden space-y-6">
+        <div class="flex justify-between items-center text-sm font-bold text-gray-500 mb-4 bg-gray-50 p-2 rounded-lg">
+            <span id="progress-text" class="text-blue-500">第 1 / 15 題</span>
+            <span id="score-text" class="text-orange-500">得分: 0</span>
+        </div>
+        
+        <div id="question-box" class="space-y-4">
+            <h2 id="question-title" class="text-2xl font-bold text-gray-800 h-16 flex items-center justify-center">載入中...</h2>
+            <div id="visual-cue" class="text-8xl mb-6 py-4 bg-yellow-50 rounded-2xl">🍎</div>
+            <div id="options-grid" class="grid grid-cols-2 gap-4">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <div id="feedback-msg" class="h-10 flex items-center justify-center font-bold text-lg rounded-lg"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden space-y-6 py-10">
+        <h2 class="text-4xl font-bold text-green-600 game-font">Well Done!</h2>
+        <div class="text-2xl text-gray-700">你的複習得分</div>
+        <div class="text-8xl font-bold text-orange-500 game-font" id="final-score">0</div>
+        <p class="text-xl text-gray-500" id="result-comment">明天考試一定沒問題！</p>
+        <button onclick="resetGame()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-10 rounded-full shadow-lg text-xl transition">
+            再練一次
+        </button>
+    </div>
+</div>
+
+<script>
+    // 完整的單字題庫 (Unit 3 & 4)
+    const vocabData = [
+        // Unit 3 Food
+        { q: "What is this?", a: "soup", options: ["soup", "salad", "spaghetti", "steak"], cue: "🥣" },
+        { q: "What is this?", a: "salad", options: ["salad", "soup", "eggs", "steak"], cue: "🥗" },
+        { q: "What is this?", a: "spaghetti", options: ["spaghetti", "french fries", "salad", "soup"], cue: "🍝" },
+        { q: "What are these?", a: "eggs", options: ["eggs", "french fries", "steak", "salad"], cue: "🥚" },
+        { q: "What is this?", a: "steak", options: ["steak", "spaghetti", "soup", "salad"], cue: "🥩" },
+        { q: "What are these?", a: "french fries", options: ["french fries", "eggs", "steak", "soup"], cue: "🍟" },
+        // Unit 3 Fruit
+        { q: "What is this?", a: "apple", options: ["apple", "banana", "orange", "peach"], cue: "🍎" },
+        { q: "What is this?", a: "banana", options: ["banana", "apple", "orange", "peach"], cue: "🍌" },
+        { q: "What is this?", a: "orange", options: ["orange", "peach", "banana", "apple"], cue: "🍊" },
+        { q: "What is this?", a: "peach", options: ["peach", "apple", "orange", "banana"], cue: "🍑" },
+        // Unit 3 Dairy
+        { q: "What is this?", a: "milk", options: ["milk", "yogurt", "cheese", "butter"], cue: "🥛" },
+        { q: "What is this?", a: "yogurt", options: ["yogurt", "milk", "cheese", "butter"], cue: "🍦" },
+        { q: "What is this?", a: "cheese", options: ["cheese", "butter", "milk", "yogurt"], cue: "🧀" },
+        { q: "What is this?", a: "butter", options: ["butter", "cheese", "milk", "yogurt"], cue: "🧈" },
+        // Unit 4 Clothes 1
+        { q: "What is this?", a: "shirt", options: ["shirt", "dress", "skirt", "pants"], cue: "👕" },
+        { q: "What is this?", a: "dress", options: ["dress", "skirt", "shirt", "socks"], cue: "👗" },
+        { q: "What is this?", a: "skirt", options: ["skirt", "dress", "pants", "shoes"], cue: "👗" },
+        { q: "What are these?", a: "pants", options: ["pants", "socks", "shoes", "skirt"], cue: "👖" },
+        { q: "What are these?", a: "socks", options: ["socks", "shoes", "pants", "shirt"], cue: "🧦" },
+        { q: "What are these?", a: "shoes", options: ["shoes", "socks", "sneakers", "boots"], cue: "👞" },
+        // Unit 4 Clothes 2
+        { q: "What is this?", a: "cap", options: ["cap", "hat", "T-shirt", "shorts"], cue: "🧢" },
+        { q: "What is this?", a: "T-shirt", options: ["T-shirt", "shirt", "sweater", "coat"], cue: "👕" },
+        { q: "What are these?", a: "shorts", options: ["shorts", "pants", "shoes", "socks"], cue: "🩳" },
+        { q: "What are these?", a: "sneakers", options: ["sneakers", "shoes", "boots", "socks"], cue: "👟" },
+        // Unit 4 Clothes 3
+        { q: "What is this?", a: "hat", options: ["hat", "cap", "sweater", "coat"], cue: "👒" },
+        { q: "What is this?", a: "coat", options: ["coat", "sweater", "shirt", "dress"], cue: "🧥" },
+        { q: "What is this?", a: "sweater", options: ["sweater", "coat", "T-shirt", "hat"], cue: "🧶" },
+        { q: "What are these?", a: "boots", options: ["boots", "shoes", "sneakers", "socks"], cue: "🥾" }
+    ];
+
+    // 必考句型題庫
+    const sentenceData = [
+        { q: "What ___ he want?", a: "does", options: ["do", "does", "is", "are"], cue: "👦❓" },
+        { q: "I ___ soup.", a: "want", options: ["want", "wants", "am", "do"], cue: "🙋‍♂️🥣" },
+        { q: "She ___ salad.", a: "wants", options: ["want", "wants", "is", "does"], cue: "👧🥗" },
+        { q: "Do you ___ apples?", a: "have", options: ["have", "has", "having", "do"], cue: "🍎✋" },
+        { q: "Does she ___ peaches?", a: "have", options: ["have", "has", "having", "is"], cue: "🍑✋" },
+        { q: "What ___ you wearing?", a: "are", options: ["am", "is", "are", "do"], cue: "👕❓" },
+        { q: "I'm wearing ___ red cap.", a: "a", options: ["a", "an", "the", "some"], cue: "1 🧢" },
+        { q: "We're wearing ___.", a: "caps", options: ["a cap", "cap", "caps", "the cap"], cue: "👬 🧢🧢" },
+        { q: "Is she wearing a hat?", a: "Yes, she is.", options: ["Yes, she is.", "No, she is.", "Yes, he is.", "No, she doesn't."], cue: "👧👒 ✅" },
+        { q: "___ he like milk?", a: "Does", options: ["Do", "Does", "Is", "Are"], cue: "👦🥛" },
+        { q: "I ___ like butter.", a: "don't", options: ["don't", "doesn't", "am not", "not"], cue: "🙅‍♂️🧈" },
+        { q: "She ___ want eggs.", a: "doesn't", options: ["don't", "doesn't", "isn't", "no"], cue: "👧🥚🙅" },
+        { q: "What's your ___?", a: "phone number", options: ["phone number", "name", "address", "color"], cue: "📞 555-0182" },
+        { q: "He's wearing a blue shirt ___ gray pants.", a: "and", options: ["and", "with", "but", "a"], cue: "👕 + 👖" },
+        { q: "Do you want an apple?", a: "Yes, please.", options: ["Yes, please.", "No, thank.", "Yes, I am.", "No, I doesn't."], cue: "🍎? (Yes)" }
+    ];
+
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let gameActive = false;
+
+    function startGame(mode) {
+        // 隨機選題並洗牌
+        const source = mode === 'vocabulary' ? vocabData : sentenceData;
+        currentQuestions = [...source].sort(() => 0.5 - Math.random()).slice(0, 15);
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        gameActive = true;
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = currentQuestions[currentQuestionIndex];
+        document.getElementById('progress-text').innerText = `第 ${currentQuestionIndex + 1} / ${currentQuestions.length} 題`;
+        document.getElementById('score-text').innerText = `得分: ${score}`;
+        document.getElementById('question-title').innerText = qData.q;
+        document.getElementById('visual-cue').innerText = qData.cue;
+        
+        const feedback = document.getElementById('feedback-msg');
+        feedback.innerText = "";
+        feedback.className = "h-10 flex items-center justify-center font-bold text-lg rounded-lg";
+        
+        const optionsGrid = document.getElementById('options-grid');
+        optionsGrid.innerHTML = "";
+        
+        const shuffledOptions = [...qData.options].sort(() => 0.5 - Math.random());
+        
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.className = "bg-white border-4 border-gray-100 hover:border-blue-300 text-gray-700 font-bold py-4 px-4 rounded-2xl shadow-sm transition transform active:scale-95 text-lg";
+            btn.onclick = () => checkAnswer(opt, btn);
+            optionsGrid.appendChild(btn);
+        });
+        gameActive = true;
+    }
+
+    function checkAnswer(selected, btn) {
+        if (!gameActive) return;
+        gameActive = false;
+        
+        const qData = currentQuestions[currentQuestionIndex];
+        const feedback = document.getElementById('feedback-msg');
+
+        if (selected === qData.a) {
+            score += 10;
+            btn.classList.add('correct-bg');
+            feedback.innerText = "答對了！You got it! 🌟";
+            feedback.classList.add('text-green-600', 'bg-green-50');
+        } else {
+            btn.classList.add('wrong-bg');
+            feedback.innerText = `加油！正確答案是: ${qData.a}`;
+            feedback.classList.add('text-red-600', 'bg-red-50');
+            // 高亮正確答案
+            Array.from(document.getElementById('options-grid').children).forEach(b => {
+                if (b.innerText === qData.a) b.classList.add('bg-green-100', 'border-green-400');
+            });
+        }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 1800);
+    }
+
+    function showResult() {
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+        
+        const comment = document.getElementById('result-comment');
+        if (score >= 140) comment.innerText = "太棒了！你是英文小天才！🏆";
+        else if (score >= 100) comment.innerText = "表現很好！考試一定沒問題！👍";
+        else comment.innerText = "再練習一下，會越來越棒喔！💪";
+    }
+
+    function resetGame() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>

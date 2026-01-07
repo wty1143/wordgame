@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文期中考 Workbook 實戰挑戰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            min-height: 100vh;
+        }
+
+        .game-font { font-family: 'Luckiest Guy', cursive; }
+
+        .correct-bg { background-color: #34d399 !important; color: white !important; }
+        .wrong-bg { background-color: #f87171 !important; color: white !important; }
+
+        .option-btn {
+            background-color: white;
+            border: 4px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1rem;
+            font-weight: bold;
+            font-size: 1.125rem;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover { border-color: #3b82f6; transform: translateY(-2px); }
+        .option-btn:active { transform: translateY(0); }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+<div id="game-container" class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-2xl text-center relative border-8 border-green-200">
+    
+    <!-- Start Screen -->
+    <div id="start-screen" class="space-y-6 py-10">
+        <h1 class="text-5xl font-bold text-green-600 game-font">WB Master!</h1>
+        <div class="bg-green-50 p-4 rounded-xl text-green-700 font-bold mb-4">
+            習作本題型全攻略：發音、拼寫、對話
+        </div>
+        <div class="grid grid-cols-1 gap-4 items-center justify-items-center">
+            <button onclick="startGame('phonics')" class="w-72 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                🔤 Phonics 發音挑戰
+            </button>
+            <button onclick="startGame('unscramble')" class="w-72 bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                🔡 單字拼寫大挑戰
+            </button>
+            <button onclick="startGame('workbook_mix')" class="w-72 bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                📖 習作本綜合複習
+            </button>
+        </div>
+        <p class="text-sm text-gray-400 mt-4">涵蓋 tr, dr, bl, cl 與所有句型變化</p>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="hidden space-y-6">
+        <div class="flex justify-between items-center text-sm font-bold text-gray-500 mb-4 bg-gray-50 p-2 rounded-lg">
+            <span id="progress-text" class="text-emerald-500">第 1 / 10 題</span>
+            <span id="score-text" class="text-orange-500">得分: 0</span>
+        </div>
+        
+        <div id="question-box" class="space-y-4">
+            <h2 id="question-title" class="text-2xl font-bold text-gray-800">這是什麼發音？</h2>
+            <div id="visual-cue" class="text-8xl mb-6 py-6 bg-green-50 rounded-2xl">🌲</div>
+            
+            <div id="options-grid" class="grid grid-cols-2 gap-4">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <div id="feedback-msg" class="h-10 flex items-center justify-center font-bold text-lg rounded-lg"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden space-y-6 py-10">
+        <h2 class="text-4xl font-bold text-emerald-600 game-font">You are Ready!</h2>
+        <div class="text-xl text-gray-700">習作複習得分</div>
+        <div class="text-8xl font-bold text-orange-500 game-font" id="final-score">0</div>
+        <p class="text-xl text-gray-600 px-6">連習作本的陷阱題都難不倒你！<br>明天考試一定要細心喔！</p>
+        <button onclick="resetGame()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-10 rounded-full shadow-lg text-xl transition">
+            再練一次
+        </button>
+    </div>
+</div>
+
+<script>
+    // 發音題庫 (tr, dr, bl, cl)
+    const phonicsData = [
+        { q: "Choose the sound: ___ee", a: "tr", options: ["tr", "dr", "bl", "cl"], cue: "🌲" },
+        { q: "Choose the sound: ___ess", a: "dr", options: ["tr", "dr", "bl", "cl"], cue: "👗" },
+        { q: "Choose the sound: ___uck", a: "tr", options: ["tr", "dr", "bl", "cl"], cue: "🚚" },
+        { q: "Choose the sound: ___um", a: "dr", options: ["tr", "dr", "bl", "cl"], cue: "🥁" },
+        { q: "Choose the sound: ___anket", a: "bl", options: ["bl", "cl", "tr", "dr"], cue: "🛌" },
+        { q: "Choose the sound: ___ock", a: "cl", options: ["bl", "cl", "tr", "dr"], cue: "⏰" },
+        { q: "Choose the sound: ___ack", a: "bl", options: ["bl", "cl", "tr", "dr"], cue: "⬛" },
+        { q: "Choose the sound: ___ap", a: "cl", options: ["bl", "cl", "tr", "dr"], cue: "👏" },
+        { q: "Which word starts with 'dr'?", a: "drum", options: ["drum", "tree", "truck", "clap"], cue: "🥁" },
+        { q: "Which word starts with 'cl'?", a: "clock", options: ["clock", "blanket", "black", "dress"], cue: "⏰" }
+    ];
+
+    // 拼寫重組題庫
+    const unscrambleData = [
+        { q: "Unscramble: s / o / u / p", a: "soup", options: ["soup", "soap", "soup", "sopu"], cue: "🥣" },
+        { q: "Unscramble: e / g / g / s", a: "eggs", options: ["eggs", "egsg", "eges", "gegs"], cue: "🥚🥚" },
+        { q: "Unscramble: s / t / e / a / k", a: "steak", options: ["steak", "steke", "stake", "sateak"], cue: "🥩" },
+        { q: "Unscramble: s / a / l / a / d", a: "salad", options: ["salad", "salda", "sald", "salade"], cue: "🥗" },
+        { q: "Unscramble: s / o / c / k / s", a: "socks", options: ["socks", "skocs", "sokes", "scoks"], cue: "🧦" },
+        { q: "Unscramble: s / h / o / e / s", a: "shoes", options: ["shoes", "shose", "sheos", "shoos"], cue: "👞" },
+        { q: "Unscramble: c / a / p", a: "cap", options: ["cap", "pac", "cpa", "pca"], cue: "🧢" },
+        { q: "Unscramble: d / r / e / s / s", a: "dress", options: ["dress", "drsee", "deres", "drees"], cue: "👗" }
+    ];
+
+    // 習作本綜合練習 (包含電話、故事對話)
+    const workbookMixData = [
+        { q: "What's wrong?", a: "I can't find my mother.", options: ["I can't find my mother.", "She's wearing a shirt.", "It's 555-0182.", "Yes, please."], cue: "😢❓" },
+        { q: "What's her phone number?", a: "It's 555-0182.", options: ["It's 555-0182.", "She's wearing a hat.", "I can't find my mother.", "He wants soup."], cue: "📞❓" },
+        { q: "Find the number: seven, one, three", a: "713", options: ["713", "731", "173", "317"], cue: "🔢" },
+        { q: "Find the number: eight, four, three", a: "843", options: ["843", "834", "483", "348"], cue: "🔢" },
+        { q: "Does he have bananas?", a: "Yes, he does.", options: ["Yes, he does.", "No, she doesn't.", "Yes, I do.", "No, he don't."], cue: "👦🍌✅" },
+        { q: "Do you want a cookie?", a: "No, thank you.", options: ["No, thank you.", "Yes, please.", "No, I don't.", "Yes, she does."], cue: "🍪? 🙅" },
+        { q: "He wants soup. He ___ want salad.", a: "doesn't", options: ["doesn't", "don't", "isn't", "no"], cue: "👦🥣✅ 🥗❌" },
+        { q: "___ he wearing a hat?", a: "Is", options: ["Is", "Are", "Do", "Does"], cue: "👦🎩❓" },
+        { q: "She ___ wearing socks.", a: "is", options: ["is", "are", "am", "does"], cue: "👧🧦" },
+        { q: "I'm wearing ___ purple T-shirt.", a: "a", options: ["a", "an", "the", "some"], cue: "👕🟣" }
+    ];
+
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let gameActive = false;
+
+    function startGame(mode) {
+        let source;
+        if (mode === 'phonics') source = phonicsData;
+        else if (mode === 'unscramble') source = unscrambleData;
+        else source = workbookMixData;
+
+        // 隨機選10題
+        currentQuestions = [...source].sort(() => 0.5 - Math.random()).slice(0, 10);
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        gameActive = true;
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = currentQuestions[currentQuestionIndex];
+        document.getElementById('progress-text').innerText = `第 ${currentQuestionIndex + 1} / ${currentQuestions.length} 題`;
+        document.getElementById('score-text').innerText = `得分: ${score}`;
+        document.getElementById('question-title').innerText = qData.q;
+        document.getElementById('visual-cue').innerText = qData.cue;
+        
+        const feedback = document.getElementById('feedback-msg');
+        feedback.innerText = "";
+        feedback.className = "h-10 flex items-center justify-center font-bold text-lg rounded-lg";
+        
+        const optionsGrid = document.getElementById('options-grid');
+        optionsGrid.innerHTML = "";
+        
+        const shuffledOptions = [...new Set(qData.options)].sort(() => 0.5 - Math.random());
+        
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.className = "option-btn";
+            btn.onclick = () => checkAnswer(opt, btn);
+            optionsGrid.appendChild(btn);
+        });
+        gameActive = true;
+    }
+
+    function checkAnswer(selected, btn) {
+        if (!gameActive) return;
+        gameActive = false;
+        
+        const qData = currentQuestions[currentQuestionIndex];
+        const feedback = document.getElementById('feedback-msg');
+
+        if (selected === qData.a) {
+            score += 10;
+            btn.classList.add('correct-bg');
+            feedback.innerText = "正確！ Excellent! 🎯";
+            feedback.classList.add('text-green-600', 'bg-green-50');
+        } else {
+            btn.classList.add('wrong-bg');
+            feedback.innerText = `正確答案是: ${qData.a}`;
+            feedback.classList.add('text-red-600', 'bg-red-50');
+            // 高亮正確答案
+            Array.from(document.getElementById('options-grid').children).forEach(b => {
+                if (b.innerText === qData.a) b.classList.add('bg-green-100', 'border-green-400');
+            });
+        }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 1800);
+    }
+
+    function showResult() {
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+    }
+
+    function resetGame() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
