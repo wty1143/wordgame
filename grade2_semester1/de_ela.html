@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Pack 終極大會考</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            min-height: 100vh;
+        }
+
+        .game-font { font-family: 'Luckiest Guy', cursive; }
+
+        .correct-bg { background-color: #10b981 !important; color: white !important; }
+        .wrong-bg { background-color: #ef4444 !important; color: white !important; }
+
+        .btn-choice {
+            background-color: white;
+            border: 4px solid #f3f4f6;
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-choice:hover {
+            border-color: #fb923c;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+<div id="game-container" class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-2xl text-center border-8 border-orange-100">
+    
+    <!-- Start Screen -->
+    <div id="start-screen" class="space-y-6 py-8">
+        <h1 class="text-5xl font-bold text-orange-500 game-font">Course Pack Review</h1>
+        <div class="bg-orange-50 p-4 rounded-xl text-orange-700 font-bold">
+            涵蓋：Phonics, Colors, & Advanced Grammar
+        </div>
+        
+        <div class="grid grid-cols-1 gap-4 justify-items-center">
+            <button onclick="startGame('phonics')" class="w-72 bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                🗣️ Phonics 語音挑戰
+            </button>
+            <button onclick="startGame('color_clothes')" class="w-72 bg-pink-500 hover:bg-pink-500 text-white font-bold py-4 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                🌈 顏色與衣服挑戰
+            </button>
+            <button onclick="startGame('conversation')" class="w-72 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 rounded-full shadow-lg text-xl transition transform hover:scale-105">
+                🤝 對話與生活句型
+            </button>
+        </div>
+        <p class="text-xs text-gray-400 mt-4 italic">Including: bl, cl, fl, cr, br, fr & Teal color!</p>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="hidden space-y-6">
+        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+            <span id="progress-text" class="font-bold text-orange-400">Question 1/10</span>
+            <span id="score-text" class="font-bold text-blue-400">Score: 0</span>
+        </div>
+        
+        <div id="question-box" class="space-y-6">
+            <h2 id="question-title" class="text-2xl font-bold text-gray-700 leading-relaxed min-h-[4rem] flex items-center justify-center">載入中...</h2>
+            <div id="visual-cue" class="text-8xl py-8 bg-gradient-to-b from-white to-gray-50 rounded-3xl shadow-inner border border-gray-100 flex items-center justify-center">❓</div>
+            
+            <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Options -->
+            </div>
+        </div>
+
+        <div id="feedback-msg" class="h-10 flex items-center justify-center font-bold text-lg"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="hidden space-y-6 py-10">
+        <h2 class="text-4xl font-bold text-orange-600 game-font">You're a Star!</h2>
+        <div class="text-xl text-gray-600">你的總得分</div>
+        <div class="text-8xl font-bold text-blue-500 game-font" id="final-score">0</div>
+        <p class="text-lg text-gray-500 px-8" id="result-text">明天考試大吉大利！</p>
+        <button onclick="resetGame()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-10 rounded-full shadow-lg text-xl transition">
+            重新複習
+        </button>
+    </div>
+</div>
+
+<script>
+    const phonicsData = [
+        { q: "Which word starts with 'bl'?", a: "black", options: ["black", "flag", "clock", "friend"], cue: "⬛" },
+        { q: "Which word starts with 'cl'?", a: "clam", options: ["clam", "blob", "fly", "crib"], cue: "🐚" },
+        { q: "Which word starts with 'fl'?", a: "flag", options: ["flag", "clock", "black", "frog"], cue: "🚩" },
+        { q: "Which word starts with 'cr'?", a: "crayon", options: ["crayon", "bread", "friend", "fly"], cue: "🖍️" },
+        { q: "Which word starts with 'br'?", a: "bread", options: ["bread", "brush", "frog", "flag"], cue: "🍞" },
+        { q: "Which word starts with 'fr'?", a: "friend", options: ["friend", "frog", "crayon", "clam"], cue: "👫" },
+        { q: "The ___ is in the crib.", a: "flag", options: ["flag", "frog", "fly", "clock"], cue: "🚩 + 👶" },
+        { q: "My ___ likes bread.", a: "friend", options: ["friend", "frog", "brush", "clam"], cue: "👫 + 🍞" },
+        { q: "Which one is 'blob'?", a: "bl", options: ["bl", "cl", "fl", "cr"], cue: "💧 (blob)" },
+        { q: "Which one is 'brush'?", a: "br", options: ["br", "fr", "cr", "bl"], cue: "🖌️" }
+    ];
+
+    const colorClothesData = [
+        { q: "He's wearing a white shirt and ___ pants.", a: "gray", options: ["gray", "teal", "pink", "black"], cue: "👖(灰色)" },
+        { q: "I'm wearing a red cap and ___ shorts.", a: "green", options: ["green", "blue", "teal", "white"], cue: "🩳(綠色)" },
+        { q: "What color is this?", a: "teal", options: ["teal", "blue", "green", "purple"], cue: "🎨 (青綠色)" },
+        { q: "They're wearing ___ caps.", a: "red", options: ["red", "reds", "a red", "the red"], cue: "👬 🧢🧢" },
+        { q: "What is she wearing?", a: "a pink skirt", options: ["a pink skirt", "pink skirts", "skirt pink", "a skirt pink"], cue: "👧👗(粉紅)" },
+        { q: "He's wearing ___.", a: "brown shoes", options: ["brown shoes", "a brown shoe", "shoes brown", "browns shoes"], cue: "👞👞(咖啡)" },
+        { q: "I'm wearing ___ teal T-shirt.", a: "a", options: ["a", "an", "the", "some"], cue: "👕(Teal)" },
+        { q: "What color is a banana?", a: "yellow", options: ["yellow", "orange", "teal", "white"], cue: "🍌" },
+        { q: "She's wearing a ___ dress.", a: "purple", options: ["purple", "gray", "black", "teal"], cue: "👗(紫色)" },
+        { q: "Are they wearing ___ sneakers?", a: "blue", options: ["blue", "blues", "a blue", "the blue"], cue: "👟👟(藍色)" }
+    ];
+
+    const conversationData = [
+        { q: "What's your phone number?", a: "It's 083456789.", options: ["It's 083456789.", "I'm fine.", "My name is Sam.", "Yes, please."], cue: "📞" },
+        { q: "Do you want an apple?", a: "Yes, please.", options: ["Yes, please.", "No, thank.", "Yes, I do.", "No, she doesn't."], cue: "🍎? (Be polite)" },
+        { q: "Does he have apples?", a: "Yes, he does.", options: ["Yes, he does.", "No, he don't.", "Yes, he has.", "No, he doesn't."], cue: "👦🍎✅" },
+        { q: "Are they wearing boots?", a: "No, they aren't.", options: ["No, they aren't.", "No, they don't.", "Yes, they are.", "No, she isn't."], cue: "👬🥾❌" },
+        { q: "What are you (all) wearing?", a: "We're wearing red caps.", options: ["We're wearing red caps.", "I'm wearing a cap.", "He's wearing caps.", "They're wearing a cap."], cue: "👬🧢🧢" },
+        { q: "What does she want?", a: "She wants soup.", options: ["She wants soup.", "She want soup.", "He wants soup.", "I want soup."], cue: "👧🥣" },
+        { q: "Is he wearing a hat?", a: "No, he isn't.", options: ["No, he isn't.", "Yes, she is.", "No, he doesn't.", "Yes, I am."], cue: "👦👒❌" },
+        { q: "Do you like milk?", a: "Yes, I do.", options: ["Yes, I do.", "Yes, I like.", "No, I doesn't.", "Yes, she does."], cue: "🥛😋" },
+        { q: "I ___ have apples.", a: "don't", options: ["don't", "doesn't", "not", "am not"], cue: "🙅‍♂️🍎" },
+        { q: "She ___ have apples.", a: "doesn't", options: ["doesn't", "don't", "has", "isn't"], cue: "🙅👧🍎" }
+    ];
+
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let gameActive = false;
+
+    function startGame(mode) {
+        let source;
+        if (mode === 'phonics') source = phonicsData;
+        else if (mode === 'color_clothes') source = colorClothesData;
+        else source = conversationData;
+
+        currentQuestions = [...source].sort(() => 0.5 - Math.random()).slice(0, 10);
+        currentQuestionIndex = 0;
+        score = 0;
+        gameActive = true;
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qData = currentQuestions[currentQuestionIndex];
+        document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1}/10`;
+        document.getElementById('score-text').innerText = `Score: ${score}`;
+        document.getElementById('question-title').innerText = qData.q;
+        document.getElementById('visual-cue').innerText = qData.cue;
+        
+        const feedback = document.getElementById('feedback-msg');
+        feedback.innerText = "";
+        feedback.className = "h-10 flex items-center justify-center font-bold text-lg";
+        
+        const optionsGrid = document.getElementById('options-grid');
+        optionsGrid.innerHTML = "";
+        
+        const shuffledOptions = [...qData.options].sort(() => 0.5 - Math.random());
+        
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.className = "btn-choice";
+            btn.onclick = () => checkAnswer(opt, btn);
+            optionsGrid.appendChild(btn);
+        });
+        gameActive = true;
+    }
+
+    function checkAnswer(selected, btn) {
+        if (!gameActive) return;
+        gameActive = false;
+        
+        const qData = currentQuestions[currentQuestionIndex];
+        const feedback = document.getElementById('feedback-msg');
+
+        if (selected === qData.a) {
+            score += 10;
+            btn.classList.add('correct-bg');
+            feedback.innerText = "Fantastic! 🌟";
+            feedback.classList.add('text-green-600');
+        } else {
+            btn.classList.add('wrong-bg');
+            feedback.innerText = `Correct answer: ${qData.a}`;
+            feedback.classList.add('text-red-600');
+            Array.from(document.getElementById('options-grid').children).forEach(b => {
+                if (b.innerText === qData.a) b.classList.add('bg-green-100', 'border-green-500');
+            });
+        }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 1800);
+    }
+
+    function showResult() {
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+        
+        const resultText = document.getElementById('result-text');
+        if (score === 100) resultText.innerText = "完美的表現！你是英文小狀元！🏆";
+        else if (score >= 80) resultText.innerText = "非常棒！期中考絕對難不倒你！✨";
+        else resultText.innerText = "再練習一下，一定會進步的！加油！💪";
+    }
+
+    function resetGame() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
